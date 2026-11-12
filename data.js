@@ -30,7 +30,7 @@ window.DETECTIVE = [
   active:["The city","sent","a cell broadcast alert","to Bangkok residents."]},
  {id:"D6", src:"Bangkok Post, 26 Sep", tense:"past continuous",
   gap:"Water discharges ____ gradually ____ increased.",
-  be:"were … being", beWrong:["was … being","were … been","are … be"],
+  be:"were / being", beWrong:["was / being","were / been","are / be"],
   doer:"The Royal Irrigation Department", doerWrong:["Water discharges","The water level","Gradual increases"], named:false,
   active:["The Royal Irrigation Department","was gradually","increasing","water discharges."]},
  {id:"D7", src:"BBC News, 26 Sep", tense:"past perfect",

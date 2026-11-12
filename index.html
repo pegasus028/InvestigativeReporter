@@ -106,7 +106,7 @@ a.lnk{color:var(--mut);font-size:12px}
   </div>
 </div>
 <script src="config.js?v=2"></script>
-<script src="data.js?v=3"></script>
+<script src="data.js?v=4"></script>
 <script>
 const $=id=>document.getElementById(id);
 const KEY='invrep-v1';
@@ -240,7 +240,7 @@ function pickBlock(parts,idx,onDone){
         else{ box.children[idx].classList.add('right'); onDone(false); } } };
     box.appendChild(b); });
 }
-function fillGap(tpl,be){ const parts=be?be.split(' … '):[]; let k=0;
+function fillGap(tpl,be){ const parts=be?be.split(' / '):[]; let k=0;
   return esc(tpl).replace(/____/g,()=>'<span class="gap">'+(be?esc(parts[Math.min(k++,parts.length-1)]):'&nbsp;')+'</span>'); }
 
 function glossFor(it){ const txt=(it.gap||'')+' '+(it.parts||[]).join(' ')+' '+(it.active||[]).join(' '); const g=[]; for(const k in (window.GLOSS||{})) if(txt.toLowerCase().indexOf(k)>=0) g.push(GLOSS[k]); $('gloss').textContent=g.join(' · '); }
@@ -256,9 +256,9 @@ function render(){
   if(it.role==='D'){
     $('rIcon').textContent='🕵️'; $('rKick').textContent='Role 1 · Detective · task '+(st+1)+' of 3'; $('rTitle').textContent='Who did it?';
     $('src').textContent='CASE FILE · '+it.src+(st>0?' · '+it.tense+' passive':'');
-    const full=it.gap.replace(/____/g,(()=>{const p=it.be.split(' … ');let k=0;return()=>p[Math.min(k++,p.length-1)];})());
+    const full=it.gap.replace(/____/g,(()=>{const p=it.be.split(' / ');let k=0;return()=>p[Math.min(k++,p.length-1)];})());
     if(st===0){
-      $('sent').innerHTML=fillGap(it.gap,''); $('q').textContent='Task 1 · Which form of be is missing?'+(it.be.indexOf(' … ')>0?' (Two gaps: first word … second word.)':''); HINT='Is the subject one thing or more than one? Is the verb group complete?';
+      $('sent').innerHTML=fillGap(it.gap,''); $('q').textContent='Task 1 · Which form of be is missing?'+(it.be.indexOf(' / ')>0?' (Two gaps: first word / second word.)':''); HINT='Is the subject one thing or more than one? Is the verb group complete?';
       mc(it.be,it.beWrong,ok=>{ $('sent').innerHTML=fillGap(it.gap,it.be); $('src').textContent='CASE FILE · '+it.src+' · '+it.tense+' passive'; done(ok,'<b>'+esc(it.be)+'</b> = '+esc(it.tense)+' passive. The words before the past participle show the tense and agree with the subject; the past participle itself never changes.'+(it.id==='D6'?' (<i>were being gradually increased</i> is also correct English.)':'')); });
     }else if(st===1){
       $('sent').innerHTML=fillGap(it.gap,it.be); $('q').textContent=it.named?'Task 2 · Who or what did the action? (This is the subject of the active sentence.)':'Task 2 · The report does not say who did it. Who most likely did it? (This becomes the subject of the active sentence.)'; HINT='The doer is not the thing that receives the action.';
