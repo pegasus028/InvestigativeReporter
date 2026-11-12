@@ -147,53 +147,89 @@
   .b3{height:104px;background:var(--bronze);animation-delay:.3s}
   .pcol.winner .nm{animation:glowpulse 2s ease-in-out infinite}
   @keyframes glowpulse{0%,100%{text-shadow:0 0 12px rgba(200,150,30,.4)}50%{text-shadow:0 0 30px rgba(200,150,30,.95)}}
-  /* dancing characters on the podium + clapping crowd at the sides */
-  .dancer{height:min(130px,12.5vh);margin-top:10px;width:auto;display:block;overflow:visible}
+  /* podium v2: mascots stand ON the blocks, name/score/accuracy sit INSIDE the blocks, clapping hands at the sides */
+  .plinks{gap:18px;margin-bottom:18px}
+  .pcol{width:240px;gap:0}
+  .block{flex-direction:column;justify-content:flex-start;gap:3px;padding:8px 10px 10px;text-align:center}
+  .block .medal{font-family:'Fraunces',serif;font-weight:900;font-size:40px;line-height:1}
+  .block .nm{font-family:'Fraunces',serif;font-weight:900;font-size:23px;line-height:1.12;color:var(--ink);text-shadow:none;animation:none}
+  .block .sc{font-family:'Fraunces',serif;font-weight:900;font-size:32px;line-height:1.05;color:var(--ink)}
+  .block .ac{font-size:11px;letter-spacing:.04em;color:rgba(26,20,16,.78);line-height:1.35}
+  .b1{height:max(27vh,196px)} .b2{height:max(22vh,168px)} .b3{height:max(18vh,146px)}
+  .rest{columns:3;column-gap:30px;width:min(820px,86vw);max-width:none;text-align:left;line-height:1.75;white-space:nowrap}
+  .dancer{height:clamp(96px,17vh,176px);width:auto;display:block;overflow:visible;margin-bottom:-3px;
+          opacity:0;animation:dIn .45s ease-out .95s forwards}
+  @keyframes dIn{from{opacity:0;transform:translateY(-30px) scale(.6)}to{opacity:1;transform:none}}
   .dancer *{transform-box:fill-box}
-  .dancer .body{transform-origin:50% 100%}
-  .dancer .armL,.dancer .armR{transform-origin:50% 0%}
+  .dancer .hop{transform-origin:50% 100%}
+  .dancer .flip{transform-origin:50% 50%}
+  .dancer .head{transform-origin:50% 90%}
+  .dancer .armL{transform-origin:85% 12%} .dancer .armR{transform-origin:15% 12%}
   .dancer .legL,.dancer .legR{transform-origin:50% 0%}
-  .dancer .tail{transform-origin:0% 0%}
-  .d1 .body{animation:dJump .56s ease-in-out infinite alternate}
-  .d1 .armL{transform-origin:100% 100%;animation:dUpL .56s ease-in-out infinite alternate}
-  .d1 .armR{transform-origin:0% 100%;animation:dUpR .56s ease-in-out infinite alternate}
-  .d1 .legL{animation:dKickL .56s ease-in-out infinite alternate}
-  .d1 .legR{animation:dKickR .56s ease-in-out infinite alternate}
-  .d1 .tail{animation:dTail .56s ease-in-out infinite alternate}
-  .d2 .body{animation:dSway .7s ease-in-out infinite alternate}
-  .d2 .armL{animation:dWaveL .7s ease-in-out infinite alternate}
-  .d2 .armR{animation:dWaveR .7s ease-in-out infinite alternate-reverse}
-  .d2 .legL{animation:dStepL .7s ease-in-out infinite alternate}
-  .d2 .legR{animation:dStepR .7s ease-in-out infinite alternate-reverse}
-  .d2 .tail{animation:dTail .7s ease-in-out infinite alternate}
-  .d3 .body{animation:dTwist .62s ease-in-out infinite alternate}
-  .d3 .armL{animation:dWaveL .31s ease-in-out infinite alternate}
-  .d3 .armR{animation:dWaveR .31s ease-in-out infinite alternate}
-  .d3 .legL{animation:dStepL .62s ease-in-out infinite alternate-reverse}
-  .d3 .legR{animation:dStepR .62s ease-in-out infinite alternate}
-  .d3 .tail{animation:dTail .62s ease-in-out infinite alternate-reverse}
-  @keyframes dJump{from{transform:translateY(0) rotate(-3deg)}to{transform:translateY(-16px) rotate(3deg)}}
-  @keyframes dSway{from{transform:rotate(-9deg)}to{transform:rotate(9deg)}}
-  @keyframes dTwist{from{transform:translateX(-7px) rotate(-6deg) scaleX(1)}to{transform:translateX(7px) rotate(6deg) scaleX(.94)}}
-  @keyframes dUpL{from{transform:rotate(-25deg)}to{transform:rotate(18deg)}}
-  @keyframes dUpR{from{transform:rotate(25deg)}to{transform:rotate(-18deg)}}
-  @keyframes dWaveL{from{transform:rotate(18deg)}to{transform:rotate(115deg)}}
-  @keyframes dWaveR{from{transform:rotate(-18deg)}to{transform:rotate(-115deg)}}
-  @keyframes dKickL{from{transform:rotate(0)}to{transform:rotate(22deg)}}
-  @keyframes dKickR{from{transform:rotate(0)}to{transform:rotate(-22deg)}}
-  @keyframes dStepL{from{transform:rotate(-4deg)}to{transform:rotate(16deg)}}
-  @keyframes dStepR{from{transform:rotate(4deg)}to{transform:rotate(-16deg)}}
-  @keyframes dTail{from{transform:rotate(-22deg)}to{transform:rotate(26deg)}}
-  .clapside{position:absolute;top:0;bottom:0;width:calc((100% - 780px)/2);display:grid;grid-template-columns:repeat(4,1fr);
-            align-content:space-evenly;justify-items:center;padding:30px 16px;pointer-events:none;overflow:hidden}
+  .dancer .tail{transform-origin:10% 10%}
+  .dancer .shadow{transform-origin:50% 50%}
+  .dancer .spark{transform-origin:50% 50%;animation:dSpark 1.1s ease-in-out infinite}
+  .dancer .spark.s2{animation-delay:-.4s} .dancer .spark.s3{animation-delay:-.75s}
+  /* 1st: big squash-and-stretch jumps, arms up, turns round every two jumps */
+  .d1 .hop{animation:dJump .62s cubic-bezier(.3,0,.4,1) infinite}
+  .d1 .flip{animation:dFlip 2.48s steps(1) infinite}
+  .d1 .shadow{animation:dShadow .62s cubic-bezier(.3,0,.4,1) infinite}
+  .d1 .armL{animation:dCheerL .31s ease-in-out infinite alternate}
+  .d1 .armR{animation:dCheerR .31s ease-in-out infinite alternate}
+  .d1 .legL{animation:dTuckL .62s ease-in-out infinite} .d1 .legR{animation:dTuckR .62s ease-in-out infinite}
+  .d1 .tail{animation:dTail .31s ease-in-out infinite alternate}
+  .d1 .head{animation:dNod .62s ease-in-out infinite}
+  /* 2nd: side-to-side shuffle, arms pumping in turn */
+  .d2 .hop{animation:dShuffle .9s ease-in-out infinite}
+  .d2 .shadow{animation:dShadowX .9s ease-in-out infinite}
+  .d2 .armL{animation:dPumpL .45s ease-in-out infinite alternate}
+  .d2 .armR{animation:dPumpR .45s ease-in-out infinite alternate-reverse}
+  .d2 .legL{animation:dStepL .45s ease-in-out infinite alternate} .d2 .legR{animation:dStepR .45s ease-in-out infinite alternate-reverse}
+  .d2 .tail{animation:dTail .45s ease-in-out infinite alternate}
+  .d2 .head{animation:dTilt .9s ease-in-out infinite}
+  /* 3rd: bouncy wave */
+  .d3 .hop{animation:dBop .5s ease-in-out infinite alternate}
+  .d3 .shadow{animation:dShadowS .5s ease-in-out infinite alternate}
+  .d3 .armL{animation:dPumpL .5s ease-in-out infinite alternate}
+  .d3 .armR{animation:dWave .25s ease-in-out infinite alternate}
+  .d3 .legL{animation:dStepL .5s ease-in-out infinite alternate-reverse} .d3 .legR{animation:dStepR .5s ease-in-out infinite alternate}
+  .d3 .tail{animation:dTail .5s ease-in-out infinite alternate-reverse}
+  .d3 .head{animation:dTilt 1s ease-in-out infinite reverse}
+  @keyframes dJump{0%,100%{transform:translateY(0) scale(1.1,.88)}18%{transform:translateY(-6px) scale(.94,1.1)}50%{transform:translateY(-34px) scale(.97,1.05)}82%{transform:translateY(-4px) scale(.96,1.06)}}
+  @keyframes dFlip{0%,49.9%{transform:scaleX(1)}50%,100%{transform:scaleX(-1)}}
+  @keyframes dShadow{0%,100%{transform:scale(1);opacity:.5}50%{transform:scale(.55);opacity:.22}}
+  @keyframes dShuffle{0%,100%{transform:translateX(-13px) rotate(-7deg) scale(1.03,.97)}25%,75%{transform:translateX(0) translateY(-9px) rotate(0) scale(.98,1.04)}50%{transform:translateX(13px) rotate(7deg) scale(1.03,.97)}}
+  @keyframes dShadowX{0%,100%{transform:translateX(-13px)}50%{transform:translateX(13px)}}
+  @keyframes dBop{from{transform:translateY(0) scale(1.07,.92)}to{transform:translateY(-15px) scale(.96,1.06)}}
+  @keyframes dShadowS{from{transform:scale(1);opacity:.5}to{transform:scale(.72);opacity:.3}}
+  @keyframes dCheerL{from{transform:rotate(128deg)}to{transform:rotate(168deg)}}
+  @keyframes dCheerR{from{transform:rotate(-128deg)}to{transform:rotate(-168deg)}}
+  @keyframes dPumpL{from{transform:rotate(10deg)}to{transform:rotate(150deg)}}
+  @keyframes dPumpR{from{transform:rotate(-10deg)}to{transform:rotate(-150deg)}}
+  @keyframes dWave{from{transform:rotate(-125deg)}to{transform:rotate(-170deg)}}
+  @keyframes dTuckL{0%,100%{transform:rotate(0)}50%{transform:rotate(28deg)}}
+  @keyframes dTuckR{0%,100%{transform:rotate(0)}50%{transform:rotate(-28deg)}}
+  @keyframes dStepL{from{transform:rotate(-3deg)}to{transform:rotate(20deg)}}
+  @keyframes dStepR{from{transform:rotate(3deg)}to{transform:rotate(-20deg)}}
+  @keyframes dTail{from{transform:rotate(-24deg)}to{transform:rotate(30deg)}}
+  @keyframes dNod{0%,100%{transform:rotate(0)}50%{transform:rotate(-5deg)}}
+  @keyframes dTilt{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
+  @keyframes dSpark{0%,100%{transform:scale(.2) rotate(0);opacity:0}50%{transform:scale(1) rotate(40deg);opacity:1}}
+  /* clapping hands: drawn (not emoji) so the fingertips always point at the podium */
+  .clapside{position:absolute;top:0;bottom:0;width:calc((100% - 840px)/2);display:grid;grid-template-columns:repeat(3,1fr);
+            align-content:space-evenly;justify-items:center;padding:30px 20px;pointer-events:none;overflow:hidden}
   .clapside.l{left:0} .clapside.r{right:0}
-  .clapside span{font-size:clamp(34px,3.4vw,62px);line-height:1;animation:clap .42s ease-in-out infinite alternate;display:block;
-                 filter:drop-shadow(0 0 10px rgba(200,150,30,.35))}
-  .clapside.r span{--flip:-1}
-  @keyframes clap{from{transform:scaleX(var(--flip,1)) scale(1.18) rotate(-14deg) translateY(-6px)}
-                  to{transform:scaleX(var(--flip,1)) scale(.84) rotate(8deg) translateY(4px)}}
-  @media (max-width:1150px){ .clapside{display:none} }
-  @media (prefers-reduced-motion:reduce){ .dancer *,.clapside span{animation:none!important} }
+  .clapside svg{width:clamp(58px,6vw,112px);height:auto;overflow:visible;filter:drop-shadow(0 0 10px rgba(200,150,30,.3))}
+  .clapside.r svg{transform:scaleX(-1)}
+  .clapside svg *{transform-box:fill-box}
+  .clapside .hA{transform-origin:0% 50%;animation:clapA var(--d,.4s) ease-in infinite alternate;animation-delay:var(--dl,0s)}
+  .clapside .hB{transform-origin:0% 50%;animation:clapB var(--d,.4s) ease-in infinite alternate;animation-delay:var(--dl,0s)}
+  .clapside .zap{animation:clapZ var(--d,.4s) ease-in infinite alternate;animation-delay:var(--dl,0s)}
+  @keyframes clapA{from{transform:rotate(-24deg)}to{transform:rotate(-3deg)}}
+  @keyframes clapB{from{transform:rotate(24deg)}to{transform:rotate(3deg)}}
+  @keyframes clapZ{0%,70%{opacity:0}100%{opacity:1}}
+  @media (max-width:1180px){ .clapside{display:none} }
+  @media (prefers-reduced-motion:reduce){ .dancer *,.clapside svg *{animation:none!important} .dancer{opacity:1;animation:none} }
   .podium h2,.podium .psub,.plinks,.podium .rest,.podbtns{position:relative;z-index:2}
   .rest{font-size:13px;color:rgba(244,234,215,.7);text-align:center;line-height:1.9;max-width:660px}
   .podbtns{display:flex;gap:10px;margin-top:22px}
@@ -704,30 +740,55 @@ poll(); setInterval(poll,POLL_MS);
 /* ============================================================
    PODIUM
    ============================================================ */
-/* An original drawn character (school blouse, navy skirt, ponytail with a white bow). place = 1, 2 or 3 picks the dance. */
+/* Original podium mascots: chunky big-head characters in the school blouse, navy skirt and white hair bow.
+   place = 1, 2 or 3 picks the dance and the medal colour. */
 function dancerSVG(place){
-  const skin='#e9b98f', hair='#1d1512', blouse='#e6ddf7', skirt='#1f2f5c', shoe='#111';
-  return '<svg class="dancer d'+place+'" viewBox="0 0 120 170" aria-hidden="true"><g class="body">'+
-    '<g class="legL"><rect x="47" y="118" width="9" height="40" rx="4.5" fill="'+skin+'"/><rect x="43" y="154" width="15" height="8" rx="4" fill="'+shoe+'"/></g>'+
-    '<g class="legR"><rect x="64" y="118" width="9" height="40" rx="4.5" fill="'+skin+'"/><rect x="62" y="154" width="15" height="8" rx="4" fill="'+shoe+'"/></g>'+
-    '<path d="M38 124 L46 92 H74 L82 124 Z" fill="'+skirt+'"/>'+
-    '<g class="armL"><rect x="'+(place===1?36:33)+'" y="'+(place===1?28:60)+'" width="9" height="'+(place===1?36:36)+'" rx="4.5" fill="'+skin+'"/></g>'+
-    '<g class="armR"><rect x="'+(place===1?75:78)+'" y="'+(place===1?28:60)+'" width="9" height="36" rx="4.5" fill="'+skin+'"/></g>'+
-    '<rect x="42" y="56" width="36" height="40" rx="9" fill="'+blouse+'"/>'+
-    '<path d="M52 56 L60 66 L68 56 Z" fill="#fff"/>'+
-    '<rect x="42" y="90" width="36" height="6" fill="#16161c"/>'+
-    '<g class="tail"><path d="M78 26 C96 30 98 52 90 66 C88 50 84 40 76 36 Z" fill="'+hair+'"/></g>'+
-    '<circle cx="60" cy="34" r="20" fill="'+skin+'"/>'+
-    '<path d="M40 34 C38 12 82 10 80 34 C74 24 62 20 40 34 Z" fill="'+hair+'"/>'+
-    '<path d="M76 20 l-9 -7 v12 Z M76 20 l9 -7 v12 Z" fill="#fff" stroke="#d9d2e6" stroke-width="1"/>'+
-    '<circle cx="53" cy="36" r="2.2" fill="#2a1c16"/><circle cx="67" cy="36" r="2.2" fill="#2a1c16"/>'+
-    '<path d="M52 43 Q60 51 68 43" fill="none" stroke="#a5462f" stroke-width="2.4" stroke-linecap="round"/>'+
-    '</g></svg>';
+  const skin='#f2c39b', hair='#231815', blouse='#ece4fb', skirt='#22336a', shoe='#15151a';
+  const medal=['#e0a62b','#cfd3da','#c98a52'][place-1];
+  const sparks = place===1 ? '<path class="spark" d="M14 22 l3 8 8 3 -8 3 -3 8 -3 -8 -8 -3 8 -3z" fill="#ffd95a"/>'+
+    '<path class="spark s2" d="M128 14 l2.4 6.4 6.4 2.4 -6.4 2.4 -2.4 6.4 -2.4 -6.4 -6.4 -2.4 6.4 -2.4z" fill="#fff3b0"/>'+
+    '<path class="spark s3" d="M132 70 l2 5 5 2 -5 2 -2 5 -2 -5 -5 -2 5 -2z" fill="#ffd95a"/>' : '';
+  return '<svg class="dancer d'+place+'" viewBox="0 0 144 168" aria-hidden="true">'+sparks+
+    '<ellipse class="shadow" cx="72" cy="162" rx="34" ry="5" fill="#000" opacity=".5"/>'+
+    '<g class="hop"><g class="flip">'+
+      '<g class="legL"><rect x="54" y="128" width="13" height="26" rx="6.5" fill="'+skin+'"/><rect x="49" y="149" width="20" height="10" rx="5" fill="'+shoe+'"/></g>'+
+      '<g class="legR"><rect x="77" y="128" width="13" height="26" rx="6.5" fill="'+skin+'"/><rect x="75" y="149" width="20" height="10" rx="5" fill="'+shoe+'"/></g>'+
+      '<path d="M44 136 L52 108 H92 L100 136 Q72 144 44 136 Z" fill="'+skirt+'"/>'+
+      '<g class="armL"><rect x="36" y="88" width="13" height="34" rx="6.5" fill="'+blouse+'"/><circle cx="42.5" cy="122" r="7.5" fill="'+skin+'"/></g>'+
+      '<g class="armR"><rect x="95" y="88" width="13" height="34" rx="6.5" fill="'+blouse+'"/><circle cx="101.5" cy="122" r="7.5" fill="'+skin+'"/></g>'+
+      '<rect x="48" y="82" width="48" height="34" rx="13" fill="'+blouse+'"/>'+
+      '<path d="M62 82 L72 94 L82 82 Z" fill="#fff"/>'+
+      '<rect x="50" y="108" width="44" height="6" rx="2" fill="#16161c"/>'+
+      '<path d="M66 92 l6 14 6 -14" fill="none" stroke="#b3261e" stroke-width="3"/><circle cx="72" cy="108" r="7" fill="'+medal+'" stroke="#fff" stroke-width="1.5"/>'+
+      '<g class="head">'+
+        '<g class="tail"><path d="M104 34 C132 34 136 70 122 92 C122 70 112 56 98 52 Z" fill="'+hair+'"/></g>'+
+        '<circle cx="72" cy="50" r="38" fill="'+skin+'"/>'+
+        '<path d="M34 54 C28 6 116 4 110 54 C104 34 86 26 60 30 C50 32 40 40 34 54 Z" fill="'+hair+'"/>'+
+        '<path d="M104 26 l-13 -10 v19 Z M104 26 l13 -10 v19 Z" fill="#fff" stroke="#d6cfe6" stroke-width="1.2"/><circle cx="104" cy="26" r="3.6" fill="#fff" stroke="#d6cfe6" stroke-width="1.2"/>'+
+        '<ellipse cx="57" cy="56" rx="5.2" ry="7" fill="#2a1c16"/><ellipse cx="87" cy="56" rx="5.2" ry="7" fill="#2a1c16"/>'+
+        '<circle cx="59" cy="53" r="2" fill="#fff"/><circle cx="89" cy="53" r="2" fill="#fff"/>'+
+        '<ellipse cx="46" cy="67" rx="6.5" ry="4" fill="#f59a8c" opacity=".75"/><ellipse cx="98" cy="67" rx="6.5" ry="4" fill="#f59a8c" opacity=".75"/>'+
+        '<path d="M61 68 Q72 82 83 68 Z" fill="#8c2f24"/><path d="M66 74 Q72 79 78 74 Q72 72 66 74 Z" fill="#f08b8b"/>'+
+      '</g>'+
+    '</g></g></svg>';
+}
+/* Two drawn hands with the fingertips pointing right; the right-hand panel is mirrored in CSS, so both sides point at the podium. */
+function clapSVG(){
+  const hand=(cls,fill,edge)=>'<g class="'+cls+'">'+
+    '<rect x="6" y="36" width="44" height="30" rx="12" fill="'+fill+'" stroke="'+edge+'" stroke-width="2"/>'+
+    '<rect x="40" y="36" width="42" height="8.5" rx="4.2" fill="'+fill+'" stroke="'+edge+'" stroke-width="2"/>'+
+    '<rect x="40" y="43.5" width="48" height="8.5" rx="4.2" fill="'+fill+'" stroke="'+edge+'" stroke-width="2"/>'+
+    '<rect x="40" y="51" width="45" height="8.5" rx="4.2" fill="'+fill+'" stroke="'+edge+'" stroke-width="2"/>'+
+    '<rect x="40" y="58.5" width="36" height="8" rx="4" fill="'+fill+'" stroke="'+edge+'" stroke-width="2"/>'+
+    '<rect x="22" y="'+(cls==='hA'?26:64)+'" width="26" height="11" rx="5.5" fill="'+fill+'" stroke="'+edge+'" stroke-width="2"/>'+
+    '<rect x="12" y="40" width="34" height="22" rx="9" fill="'+fill+'"/></g>';
+  return '<svg viewBox="0 0 110 102" aria-hidden="true">'+hand('hB','#f2a922','#b9770e')+hand('hA','#ffc83d','#c98a12')+
+    '<g class="zap" stroke="#fff3b0" stroke-width="3.2" stroke-linecap="round"><path d="M95 30 l9 -9"/><path d="M98 51 h11"/><path d="M95 72 l9 9"/></g></svg>';
 }
 function fillClaps(){
   ['clapL','clapR'].forEach(id=>{
     const el=document.getElementById(id); if(!el||el.children.length) return;
-    let s=''; for(let i=0;i<24;i++){ s+='<span style="animation-duration:'+(0.34+Math.random()*0.22).toFixed(2)+'s;animation-delay:-'+(Math.random()*0.5).toFixed(2)+'s">👏</span>'; }
+    let s=''; for(let i=0;i<15;i++){ s+='<div style="--d:'+(0.17+Math.random()*0.1).toFixed(2)+'s;--dl:-'+(Math.random()*0.4).toFixed(2)+'s">'+clapSVG()+'</div>'; }
     el.innerHTML=s;
   });
 }
@@ -737,10 +798,11 @@ function showPodium(){
   const order=[1,0,2], cls=['b2','b1','b3'], medal=['2','1','3'];
   document.getElementById('plinks').innerHTML=order.map((idx,pos)=>{
     const t=sorted[idx]; if(!t) return '';
-    return '<div class="pcol'+(idx===0?' winner':'')+'">'+dancerSVG(idx+1)+'<div class="nm">'+esc(t.team)+'</div>'+
+    return '<div class="pcol'+(idx===0?' winner':'')+'">'+dancerSVG(idx+1)+
+           '<div class="block '+cls[pos]+'"><div class="medal">'+medal[pos]+'</div>'+
+           '<div class="nm">'+esc(t.team)+'</div>'+
            '<div class="sc">'+t.score+'</div>'+
-           '<div class="ac">'+metaLine(t)+'</div>'+
-           '<div class="block '+cls[pos]+'">'+medal[pos]+'</div></div>';
+           '<div class="ac">'+metaLine(t)+'</div></div></div>';
   }).join('');
   document.getElementById('rest').innerHTML = sorted.slice(3,12)
     .map((t,i)=>(i+4)+'. '+esc(t.team)+' — '+t.score+' pts ('+(t.accuracy||0)+'%)').join('<br>');
