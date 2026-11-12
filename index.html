@@ -105,7 +105,7 @@ a.lnk{color:var(--mut);font-size:12px}
     <p class="mut">Every case solved. Look at the board for the podium.</p>
   </div>
 </div>
-<script src="config.js?v=2"></script>
+<script src="config.js?v=3"></script>
 <script src="data.js?v=4"></script>
 <script>
 const $=id=>document.getElementById(id);
@@ -163,7 +163,10 @@ function tick(){
 }
 setInterval(tick,500);
 /* light polling only while waiting (before the round / after time is up) */
-setInterval(async()=>{ if(!S||S.offline) return; if($('vWait').classList.contains('hide')&&$('vDone').classList.contains('hide')) return;
+let pollN=0;
+setInterval(async()=>{ if(!S||S.offline) return; pollN++;
+  /* waiting or finished: every 4 s. Playing: every 12 s, so a Stop or Reset on the board reaches idle players too. */
+  if($('vWait').classList.contains('hide')&&$('vDone').classList.contains('hide')&&pollN%3) return;
   try{ applyTimer(await api('GET')); tick(); }catch(e){} },4000);
 
 function route(){
