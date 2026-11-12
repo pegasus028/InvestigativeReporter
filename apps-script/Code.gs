@@ -1,10 +1,12 @@
 /* Investigative Reporter backend — Apps Script web app (Execute as: Me, Access: Anyone).
+   Class list: a second, private script file Roster.gs defines ROSTER (array of sign-in labels); it is not in the repo.
    No Sheet: scores live in Script Properties, one key per student, so 30 students never queue on a lock. */
 var P = PropertiesService.getScriptProperties();
 function out(o){ return ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON); }
 function timer_(){ var t = P.getProperty('timer'); return t ? JSON.parse(t) : {expirationMs:0, running:false}; }
 function epoch_(){ return P.getProperty('epoch') || '1'; }
 function doGet(e){
+  if (e && e.parameter && e.parameter.action === 'roster') return out({ok:true, roster:(typeof ROSTER !== 'undefined' && ROSTER) ? ROSTER : []});
   var all = P.getProperties(), teams = [];
   for (var k in all) if (k.indexOf('T:') === 0) { try { teams.push(JSON.parse(all[k])); } catch (err) {} }
   var t = all.timer ? JSON.parse(all.timer) : {expirationMs:0, running:false};

@@ -48,7 +48,7 @@ body:not(.rep) .btn{color:#10151f}
 .btn:disabled{opacity:.4}
 .fb{margin-top:14px;padding:12px 14px;border-radius:11px;font-size:14px;line-height:1.5;border-left:5px solid var(--ok);background:var(--chip)}
 .fb.no{border-color:var(--bad)} .fb b{font-family:'Fraunces',serif;font-size:16px}
-input[type=text]{width:100%;font:inherit;font-size:18px;padding:13px;border-radius:11px;border:2px solid var(--line);background:var(--chip);color:var(--ink);margin:12px 0}
+input[type=text],select{width:100%;font:inherit;font-size:18px;padding:13px;border-radius:11px;border:2px solid var(--line);background:var(--chip);color:var(--ink);margin:12px 0}
 .center{text-align:center}.big{font-family:'Fraunces',serif;font-weight:900;font-size:64px;color:var(--acc)}
 .mut{color:var(--mut);font-size:13px;line-height:1.6}
 .hide{display:none!important}
@@ -67,6 +67,7 @@ a.lnk{color:var(--mut);font-size:12px}
   <div id="vJoin" class="card">
     <h1>Investigative <em>Reporter</em></h1>
     <p class="mut" style="margin-top:10px">You switch between two jobs.<br>🕵️ <b>Detective</b>: read a passive sentence from a real news report, fix <i>be</i>, find who did it, and rebuild the active sentence.<br>📰 <b>Reporter</b>: take an active sentence and write it up in the passive.</p>
+    <select id="pick" class="hide"><option value="">Tap to choose your name…</option></select>
     <input type="text" id="name" maxlength="20" placeholder="Your nickname (e.g. Ploy 12)" autocomplete="off">
     <div class="row"><button class="btn" id="joinBtn">Join the newsroom</button><button class="btn ghost" id="soloBtn">Solo practice (no board)</button></div>
     <p class="mut" id="joinMsg" style="margin-top:10px"></p>
@@ -104,7 +105,7 @@ a.lnk{color:var(--mut);font-size:12px}
   </div>
 </div>
 <script src="config.js?v=2"></script>
-<script src="data.js?v=1"></script>
+<script src="data.js?v=2"></script>
 <script>
 const $=id=>document.getElementById(id);
 const KEY='invrep-v1';
@@ -282,13 +283,14 @@ function render(){
 
 /* ---------- join ---------- */
 async function join(offline){
-  const n=$('name').value.trim().replace(/\s+/g,' ');
-  if(!n){$('joinMsg').textContent='Type a nickname first.';return;}
+  const n=(HAS_ROSTER?$('pick').value:$('name').value).trim().replace(/\s+/g,' ');
+  if(!n){$('joinMsg').textContent=HAS_ROSTER?'Choose your name first.':'Type a nickname first.';return;}
   if(offline||!apiReady()){ S=fresh(n,true); save(); route(); return; }
   $('joinBtn').disabled=true; $('joinMsg').textContent='Connecting…';
   try{ const r=await api('POST',{action:'register',team:n}); 
        S=fresh(n,false); S.epoch=String(r.epoch||''); 
-       if(r.saved&&r.saved.score){ $('joinMsg').textContent='That nickname is already playing. Add your class number.'; S=null; $('joinBtn').disabled=false; return; }
+       if(r.saved&&r.saved.score){ if(HAS_ROSTER){ ['score','asked','first','second','bestStreak','cases'].forEach(k=>S[k]=r.saved[k]||0); }
+         else { $('joinMsg').textContent='That nickname is already playing. Add your class number.'; S=null; $('joinBtn').disabled=false; return; } }
        applyTimer(r); save(); if(!r.saved) sync(); route(); }
   catch(e){ $('joinMsg').textContent='Could not reach the board. Try again, or use Solo practice.'; }
   $('joinBtn').disabled=false;
@@ -296,8 +298,15 @@ async function join(offline){
 $('joinBtn').onclick=()=>join(false); $('soloBtn').onclick=()=>join(true);
 $('name').addEventListener('keydown',e=>{if(e.key==='Enter')join(false);});
 
+let HAS_ROSTER=false;
+async function loadRoster(){
+  if(!apiReady()) return;
+  try{ const r=await fetch(API_URL+'?action=roster').then(x=>x.json());
+    if(r&&r.roster&&r.roster.length){ const p=$('pick'); r.roster.forEach(n=>{const o=document.createElement('option');o.value=o.textContent=n;p.appendChild(o);});
+      HAS_ROSTER=true; p.classList.remove('hide'); $('name').classList.add('hide'); } }catch(e){}
+}
 (async function init(){
-  S=load(); hud();
+  S=load(); hud(); if(!S) loadRoster();
   if(S && !S.offline && apiReady()){ try{ applyTimer(await api('GET')); }catch(e){} }
   route();
 })();
