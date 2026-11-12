@@ -645,7 +645,9 @@ on('stopBtn', async()=>{
 });
 on('resetBtn', async()=>{
   if(!confirm('Reset ALL scores, students and the timer?')) return;
-  try{ await api('POST',{action:'reset'}); lastOrder=[]; cardState={}; podStrip.innerHTML=''; hidePodium(); autoPodiumDone=false; running=false; expirationMs=0; latest=[]; renderBoard([]); renderClock(); await poll(); }
+  const wipe=()=>{ lastOrder=[]; cardState={}; podStrip.innerHTML=''; hidePodium(); autoPodiumDone=false; running=false; expirationMs=0; latest=[]; renderBoard([]); renderClock(); };
+  wipe(); document.getElementById('status').textContent='Resetting…';
+  try{ await api('POST',{action:'reset'}); wipe(); await poll(); }
   catch(e){ alert('Could not reach the backend. Check API_URL / deployment.'); }
 });
 on('fsBtn', ()=>{
