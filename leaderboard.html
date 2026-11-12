@@ -147,6 +147,54 @@
   .b3{height:104px;background:var(--bronze);animation-delay:.3s}
   .pcol.winner .nm{animation:glowpulse 2s ease-in-out infinite}
   @keyframes glowpulse{0%,100%{text-shadow:0 0 12px rgba(200,150,30,.4)}50%{text-shadow:0 0 30px rgba(200,150,30,.95)}}
+  /* dancing characters on the podium + clapping crowd at the sides */
+  .dancer{height:min(130px,12.5vh);margin-top:10px;width:auto;display:block;overflow:visible}
+  .dancer *{transform-box:fill-box}
+  .dancer .body{transform-origin:50% 100%}
+  .dancer .armL,.dancer .armR{transform-origin:50% 0%}
+  .dancer .legL,.dancer .legR{transform-origin:50% 0%}
+  .dancer .tail{transform-origin:0% 0%}
+  .d1 .body{animation:dJump .56s ease-in-out infinite alternate}
+  .d1 .armL{transform-origin:100% 100%;animation:dUpL .56s ease-in-out infinite alternate}
+  .d1 .armR{transform-origin:0% 100%;animation:dUpR .56s ease-in-out infinite alternate}
+  .d1 .legL{animation:dKickL .56s ease-in-out infinite alternate}
+  .d1 .legR{animation:dKickR .56s ease-in-out infinite alternate}
+  .d1 .tail{animation:dTail .56s ease-in-out infinite alternate}
+  .d2 .body{animation:dSway .7s ease-in-out infinite alternate}
+  .d2 .armL{animation:dWaveL .7s ease-in-out infinite alternate}
+  .d2 .armR{animation:dWaveR .7s ease-in-out infinite alternate-reverse}
+  .d2 .legL{animation:dStepL .7s ease-in-out infinite alternate}
+  .d2 .legR{animation:dStepR .7s ease-in-out infinite alternate-reverse}
+  .d2 .tail{animation:dTail .7s ease-in-out infinite alternate}
+  .d3 .body{animation:dTwist .62s ease-in-out infinite alternate}
+  .d3 .armL{animation:dWaveL .31s ease-in-out infinite alternate}
+  .d3 .armR{animation:dWaveR .31s ease-in-out infinite alternate}
+  .d3 .legL{animation:dStepL .62s ease-in-out infinite alternate-reverse}
+  .d3 .legR{animation:dStepR .62s ease-in-out infinite alternate}
+  .d3 .tail{animation:dTail .62s ease-in-out infinite alternate-reverse}
+  @keyframes dJump{from{transform:translateY(0) rotate(-3deg)}to{transform:translateY(-16px) rotate(3deg)}}
+  @keyframes dSway{from{transform:rotate(-9deg)}to{transform:rotate(9deg)}}
+  @keyframes dTwist{from{transform:translateX(-7px) rotate(-6deg) scaleX(1)}to{transform:translateX(7px) rotate(6deg) scaleX(.94)}}
+  @keyframes dUpL{from{transform:rotate(-25deg)}to{transform:rotate(18deg)}}
+  @keyframes dUpR{from{transform:rotate(25deg)}to{transform:rotate(-18deg)}}
+  @keyframes dWaveL{from{transform:rotate(18deg)}to{transform:rotate(115deg)}}
+  @keyframes dWaveR{from{transform:rotate(-18deg)}to{transform:rotate(-115deg)}}
+  @keyframes dKickL{from{transform:rotate(0)}to{transform:rotate(22deg)}}
+  @keyframes dKickR{from{transform:rotate(0)}to{transform:rotate(-22deg)}}
+  @keyframes dStepL{from{transform:rotate(-4deg)}to{transform:rotate(16deg)}}
+  @keyframes dStepR{from{transform:rotate(4deg)}to{transform:rotate(-16deg)}}
+  @keyframes dTail{from{transform:rotate(-22deg)}to{transform:rotate(26deg)}}
+  .clapside{position:absolute;top:0;bottom:0;width:calc((100% - 780px)/2);display:grid;grid-template-columns:repeat(4,1fr);
+            align-content:space-evenly;justify-items:center;padding:30px 16px;pointer-events:none;overflow:hidden}
+  .clapside.l{left:0} .clapside.r{right:0}
+  .clapside span{font-size:clamp(34px,3.4vw,62px);line-height:1;animation:clap .42s ease-in-out infinite alternate;display:block;
+                 filter:drop-shadow(0 0 10px rgba(200,150,30,.35))}
+  .clapside.r span{--flip:-1}
+  @keyframes clap{from{transform:scaleX(var(--flip,1)) scale(1.18) rotate(-14deg) translateY(-6px)}
+                  to{transform:scaleX(var(--flip,1)) scale(.84) rotate(8deg) translateY(4px)}}
+  @media (max-width:1150px){ .clapside{display:none} }
+  @media (prefers-reduced-motion:reduce){ .dancer *,.clapside span{animation:none!important} }
+  .podium h2,.podium .psub,.plinks,.podium .rest,.podbtns{position:relative;z-index:2}
   .rest{font-size:13px;color:rgba(244,234,215,.7);text-align:center;line-height:1.9;max-width:660px}
   .podbtns{display:flex;gap:10px;margin-top:22px}
   .podbtns button{font-family:'Fraunces',serif;font-weight:900;font-size:14px;padding:10px 20px;
@@ -206,6 +254,7 @@
     <button id="startBtn">Start Round</button>
     <button class="ghost" id="stopBtn">Stop &amp; Show Podium</button>
     <button class="ghost" id="podiumBtn">Podium</button>
+    <button class="ghost" id="musicBtn">🎵 Music on</button>
     <button class="ghost" id="fsBtn">Fullscreen</button>
     <button class="ghost" id="resetBtn">Reset</button>
     <div class="spacer"></div>
@@ -216,6 +265,8 @@
 <canvas id="confetti"></canvas>
 
 <div class="podium" id="podium">
+  <div class="clapside l" id="clapL"></div>
+  <div class="clapside r" id="clapR"></div>
   <h2>Final Standings</h2>
   <div class="psub">Investigative Reporter · English 4 · M5.1</div>
   <div class="plinks" id="plinks"></div>
@@ -414,6 +465,58 @@ let actx=null, crowd=null, crowdMuted=false;
 function ac(){ actx = actx || new (window.AudioContext||window.webkitAudioContext)(); if(actx.state==='suspended') actx.resume(); return actx; }
 document.addEventListener('click',()=>{ try{ ac(); }catch(e){} },{once:true});
 
+/* ---------- game soundtrack: an original looping synth track, made in the browser (no audio file) ---------- */
+let music=null, musicOn=true;
+try{ musicOn = localStorage.getItem('invrep-music')!=='off'; }catch(e){}
+const mtof=n=>440*Math.pow(2,(n-69)/12);
+const CHORDS=[[45,57,60,64],[45,57,60,64],[41,53,57,60],[43,55,59,62],[45,57,60,64],[48,60,64,67],[41,53,57,60],[40,52,56,59]]; // Am Am F G | Am C F E
+const ARP=[0,2,1,2,3,2,1,2,0,2,1,3,2,3,1,2], BASS=[1,0,0,1,0,0,1,0,1,0,0,1,0,1,0,0];
+const LEAD=[[0,76],[6,79],[10,76],[16,74],[22,72],[26,74],[32,76],[38,81],[42,79],[48,76],[54,74],[58,71]]; // step in a 4-bar phrase, midi note
+function startMusic(){
+  if(music||!musicOn) return;
+  try{
+    const c=ac(), out=c.createGain(); out.gain.value=.0001; out.connect(c.destination);
+    out.gain.exponentialRampToValueAtTime(.16,c.currentTime+1.2);
+    const lp=c.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=1900; lp.Q.value=6; lp.connect(out);
+    const nb=noiseBuffer(c,1);
+    const tone=(t,f,type,dur,vol,dest)=>{ const o=c.createOscillator(), g=c.createGain(); o.type=type; o.frequency.value=f;
+      g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(vol,t+.008); g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+      o.connect(g); g.connect(dest); o.start(t); o.stop(t+dur+.03); };
+    const noise=(t,dur,vol,hp)=>{ const s=c.createBufferSource(), g=c.createGain(), f=c.createBiquadFilter(); s.buffer=nb; f.type='highpass'; f.frequency.value=hp;
+      g.gain.setValueAtTime(vol,t); g.gain.exponentialRampToValueAtTime(.0001,t+dur); s.connect(f); f.connect(g); g.connect(out); s.start(t); s.stop(t+dur+.02); };
+    const kick=t=>{ const o=c.createOscillator(), g=c.createGain(); o.frequency.setValueAtTime(140,t); o.frequency.exponentialRampToValueAtTime(42,t+.13);
+      g.gain.setValueAtTime(.9,t); g.gain.exponentialRampToValueAtTime(.0001,t+.2); o.connect(g); g.connect(out); o.start(t); o.stop(t+.22); };
+    const m={out, step:0, next:c.currentTime+.12, timer:null};
+    m.timer=setInterval(()=>{
+      const rem = running&&expirationMs ? expirationMs-Date.now() : 1e9;
+      const bpm = rem<=30000 ? 148 : 122, sp=60/bpm/4;          // faster for the last 30 seconds
+      lp.frequency.setTargetAtTime(rem<=30000?3200:1900, c.currentTime, .4);
+      while(m.next < c.currentTime+.25){
+        const t=m.next, s=m.step%16, bar=Math.floor(m.step/16)%8, ch=CHORDS[bar], ph=m.step%64, pass=Math.floor(m.step/64)%2;
+        tone(t, mtof(ch[ARP[s]]+12), 'sawtooth', sp*.9, .16, lp);                    // arpeggio
+        if(BASS[s]) tone(t, mtof(ch[0]-12), 'square', sp*1.7, .2, lp);              // bass pulse
+        if(s%4===0) kick(t);
+        if(s%4===2) noise(t,.035,.11,7000);                                          // hat
+        if(s===4||s===12) noise(t,.11,.16,1800);                                     // snare
+        if(pass===1){ const n=LEAD.find(x=>x[0]===ph); if(n) tone(t, mtof(n[1]), 'triangle', sp*3.6, .2, out); }
+        m.next+=sp; m.step++;
+      }
+    },60);
+    music=m;
+  }catch(e){ music=null; }
+}
+function stopMusic(){
+  if(!music) return; const m=music; music=null; clearInterval(m.timer);
+  try{ const c=ac(); m.out.gain.cancelScheduledValues(c.currentTime); m.out.gain.setValueAtTime(Math.max(m.out.gain.value,.0001),c.currentTime);
+       m.out.gain.exponentialRampToValueAtTime(.0001,c.currentTime+.5); setTimeout(()=>{ try{m.out.disconnect();}catch(e){} },800); }catch(e){}
+}
+/* music plays only while a round is live and the podium is closed */
+function musicSync(){
+  const live = running && expirationMs && expirationMs-Date.now()>0 && !document.getElementById('podium').classList.contains('show');
+  if(live && musicOn) startMusic(); else stopMusic();
+}
+setInterval(musicSync,500);
+
 function leadChangeChime(){
   try{
     const c=ac(), t0=c.currentTime;
@@ -601,20 +704,49 @@ poll(); setInterval(poll,POLL_MS);
 /* ============================================================
    PODIUM
    ============================================================ */
+/* An original drawn character (school blouse, navy skirt, ponytail with a white bow). place = 1, 2 or 3 picks the dance. */
+function dancerSVG(place){
+  const skin='#e9b98f', hair='#1d1512', blouse='#e6ddf7', skirt='#1f2f5c', shoe='#111';
+  return '<svg class="dancer d'+place+'" viewBox="0 0 120 170" aria-hidden="true"><g class="body">'+
+    '<g class="legL"><rect x="47" y="118" width="9" height="40" rx="4.5" fill="'+skin+'"/><rect x="43" y="154" width="15" height="8" rx="4" fill="'+shoe+'"/></g>'+
+    '<g class="legR"><rect x="64" y="118" width="9" height="40" rx="4.5" fill="'+skin+'"/><rect x="62" y="154" width="15" height="8" rx="4" fill="'+shoe+'"/></g>'+
+    '<path d="M38 124 L46 92 H74 L82 124 Z" fill="'+skirt+'"/>'+
+    '<g class="armL"><rect x="'+(place===1?36:33)+'" y="'+(place===1?28:60)+'" width="9" height="'+(place===1?36:36)+'" rx="4.5" fill="'+skin+'"/></g>'+
+    '<g class="armR"><rect x="'+(place===1?75:78)+'" y="'+(place===1?28:60)+'" width="9" height="36" rx="4.5" fill="'+skin+'"/></g>'+
+    '<rect x="42" y="56" width="36" height="40" rx="9" fill="'+blouse+'"/>'+
+    '<path d="M52 56 L60 66 L68 56 Z" fill="#fff"/>'+
+    '<rect x="42" y="90" width="36" height="6" fill="#16161c"/>'+
+    '<g class="tail"><path d="M78 26 C96 30 98 52 90 66 C88 50 84 40 76 36 Z" fill="'+hair+'"/></g>'+
+    '<circle cx="60" cy="34" r="20" fill="'+skin+'"/>'+
+    '<path d="M40 34 C38 12 82 10 80 34 C74 24 62 20 40 34 Z" fill="'+hair+'"/>'+
+    '<path d="M76 20 l-9 -7 v12 Z M76 20 l9 -7 v12 Z" fill="#fff" stroke="#d9d2e6" stroke-width="1"/>'+
+    '<circle cx="53" cy="36" r="2.2" fill="#2a1c16"/><circle cx="67" cy="36" r="2.2" fill="#2a1c16"/>'+
+    '<path d="M52 43 Q60 51 68 43" fill="none" stroke="#a5462f" stroke-width="2.4" stroke-linecap="round"/>'+
+    '</g></svg>';
+}
+function fillClaps(){
+  ['clapL','clapR'].forEach(id=>{
+    const el=document.getElementById(id); if(!el||el.children.length) return;
+    let s=''; for(let i=0;i<24;i++){ s+='<span style="animation-duration:'+(0.34+Math.random()*0.22).toFixed(2)+'s;animation-delay:-'+(Math.random()*0.5).toFixed(2)+'s">👏</span>'; }
+    el.innerHTML=s;
+  });
+}
 function showPodium(){
   const sorted=[...latest].sort((a,b)=>b.score-a.score);
   if(!sorted.length) return;
   const order=[1,0,2], cls=['b2','b1','b3'], medal=['2','1','3'];
   document.getElementById('plinks').innerHTML=order.map((idx,pos)=>{
     const t=sorted[idx]; if(!t) return '';
-    return '<div class="pcol'+(idx===0?' winner':'')+'"><div class="nm">'+esc(t.team)+'</div>'+
+    return '<div class="pcol'+(idx===0?' winner':'')+'">'+dancerSVG(idx+1)+'<div class="nm">'+esc(t.team)+'</div>'+
            '<div class="sc">'+t.score+'</div>'+
            '<div class="ac">'+metaLine(t)+'</div>'+
            '<div class="block '+cls[pos]+'">'+medal[pos]+'</div></div>';
   }).join('');
   document.getElementById('rest').innerHTML = sorted.slice(3,12)
     .map((t,i)=>(i+4)+'. '+esc(t.team)+' — '+t.score+' pts ('+(t.accuracy||0)+'%)').join('<br>');
+  fillClaps();
   document.getElementById('podium').classList.add('show');
+  stopMusic();
   startConfetti();
   startCrowd();
 }
@@ -650,6 +782,9 @@ on('resetBtn', async()=>{
   try{ await api('POST',{action:'reset'}); wipe(); await poll(); }
   catch(e){ alert('Could not reach the backend. Check API_URL / deployment.'); }
 });
+function musicLabel(){ document.getElementById('musicBtn').textContent = musicOn ? '🎵 Music on' : '🔇 Music off'; }
+musicLabel();
+on('musicBtn', ()=>{ musicOn=!musicOn; try{ localStorage.setItem('invrep-music', musicOn?'on':'off'); }catch(e){} musicLabel(); musicSync(); });
 on('fsBtn', ()=>{
   if(document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen();
 });
