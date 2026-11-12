@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Investigative Reporter · English 4</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#10151f;--card:#1a2233;--ink:#f1e9d6;--mut:#9aa6bd;--acc:#e0a62b;--line:#2c3a55;--ok:#3fae6d;--bad:#d9573f;--chip:#243049}
+body.rep{--bg:#f3ecdc;--card:#fffaf0;--ink:#1c1a17;--mut:#6d665a;--acc:#b3261e;--line:#d8cdb5;--chip:#efe5cf}
+body{background:var(--bg);color:var(--ink);font-family:'Space Mono',ui-monospace,monospace;min-height:100vh;transition:background .4s,color .4s;-webkit-tap-highlight-color:transparent}
+.wrap{max-width:760px;margin:0 auto;padding:14px 14px 40px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12px;color:var(--mut);margin-bottom:12px}
+.top b{color:var(--ink);font-size:15px}
+.pill{border:1px solid var(--line);border-radius:999px;padding:5px 11px;background:var(--card);white-space:nowrap}
+#clock.warn{color:var(--bad);border-color:var(--bad)}
+h1{font-family:'Fraunces',serif;font-weight:900;font-size:34px;line-height:1.05}
+h1 em{color:var(--acc);font-style:italic}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:14px}
+.role{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.badge{font-size:30px;width:54px;height:54px;border-radius:12px;background:var(--chip);display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.role .k{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--acc);font-weight:700}
+.role .t{font-family:'Fraunces',serif;font-weight:900;font-size:22px}
+.steps{display:flex;gap:6px;margin-bottom:14px}
+.steps i{flex:1;height:6px;border-radius:3px;background:var(--line)}
+.steps i.on{background:var(--acc)} .steps i.done{background:var(--ok)}
+.src{font-size:11px;color:var(--mut);margin-bottom:6px;letter-spacing:.04em}
+.sent{font-family:'Fraunces',serif;font-weight:600;font-size:23px;line-height:1.35;margin-bottom:6px}
+.sent .gap{display:inline-block;min-width:74px;border-bottom:3px solid var(--acc);text-align:center;color:var(--acc);padding:0 6px}
+.q{font-weight:700;margin:16px 0 10px;font-size:15px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:520px){.opts{grid-template-columns:1fr}.sent{font-size:20px}h1{font-size:28px}}
+button{font-family:inherit;cursor:pointer;color:inherit}
+.opt,.blk{background:var(--chip);border:2px solid var(--line);border-radius:11px;padding:13px 12px;font-size:16px;font-weight:700;text-align:center;transition:transform .08s,border-color .15s}
+.opt:active,.blk:active{transform:scale(.97)}
+.opt.right,.blk.right{border-color:var(--ok);background:rgba(63,174,109,.18)}
+.opt.wrong,.blk.wrong{border-color:var(--bad);opacity:.5;text-decoration:line-through}
+.opt:disabled,.blk:disabled{cursor:default}
+.blocks{display:flex;flex-wrap:wrap;gap:8px}
+.line{min-height:62px;border:2px dashed var(--line);border-radius:12px;padding:8px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+.line.ok{border-color:var(--ok);border-style:solid}.line.no{border-color:var(--bad)}
+.line:empty::before{content:'Tap the blocks in order…';color:var(--mut);font-size:13px;padding-left:6px}
+.row{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+.btn{background:var(--acc);color:#fff;border:0;border-radius:11px;padding:13px 20px;font-weight:700;font-size:15px}
+body:not(.rep) .btn{color:#10151f}
+.btn.ghost{background:transparent;border:2px solid var(--line);color:var(--ink)}
+.btn:disabled{opacity:.4}
+.fb{margin-top:14px;padding:12px 14px;border-radius:11px;font-size:14px;line-height:1.5;border-left:5px solid var(--ok);background:var(--chip)}
+.fb.no{border-color:var(--bad)} .fb b{font-family:'Fraunces',serif;font-size:16px}
+input[type=text]{width:100%;font:inherit;font-size:18px;padding:13px;border-radius:11px;border:2px solid var(--line);background:var(--chip);color:var(--ink);margin:12px 0}
+.center{text-align:center}.big{font-family:'Fraunces',serif;font-weight:900;font-size:64px;color:var(--acc)}
+.mut{color:var(--mut);font-size:13px;line-height:1.6}
+.hide{display:none!important}
+a.lnk{color:var(--mut);font-size:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <span class="pill" id="who">English 4 · Unit 5</span>
+    <span class="pill" id="clock">--:--</span>
+    <span class="pill">Score <b id="score">0</b> · 🔥<span id="streak">0</span></span>
+  </div>
+
+  <!-- sign in -->
+  <div id="vJoin" class="card">
+    <h1>Investigative <em>Reporter</em></h1>
+    <p class="mut" style="margin-top:10px">You switch between two jobs.<br>🕵️ <b>Detective</b>: read a passive sentence from a real news report, fix <i>be</i>, find who did it, and rebuild the active sentence.<br>📰 <b>Reporter</b>: take an active sentence and write it up in the passive.</p>
+    <input type="text" id="name" maxlength="20" placeholder="Your nickname (e.g. Ploy 12)" autocomplete="off">
+    <div class="row"><button class="btn" id="joinBtn">Join the newsroom</button><button class="btn ghost" id="soloBtn">Solo practice (no board)</button></div>
+    <p class="mut" id="joinMsg" style="margin-top:10px"></p>
+  </div>
+
+  <!-- waiting -->
+  <div id="vWait" class="card center hide">
+    <div class="badge" style="margin:0 auto 12px">⏳</div>
+    <h1 id="waitTitle">Waiting for the round to start</h1>
+    <p class="mut" style="margin-top:10px" id="waitMsg">Watch the board. Your first case opens when T.Chris starts the timer.</p>
+    <div class="big" id="waitScore"></div>
+  </div>
+
+  <!-- play -->
+  <div id="vPlay" class="hide">
+    <div class="card">
+      <div class="role"><div class="badge" id="rIcon">🕵️</div><div><div class="k" id="rKick">Role 1 · Detective</div><div class="t" id="rTitle">Who did it?</div></div></div>
+      <div class="steps"><i id="s0"></i><i id="s1"></i><i id="s2"></i></div>
+      <div class="src" id="src"></div>
+      <div class="sent" id="sent"></div>
+      <div class="q" id="q"></div>
+      <div id="area"></div>
+      <div id="fb"></div>
+      <div class="row"><button class="btn ghost hide" id="resetBtn">↺ Reset</button><button class="btn hide" id="checkBtn">Check</button><button class="btn hide" id="nextBtn">Next →</button></div>
+    </div>
+    <p class="mut center">Case <span id="caseNo">1</span> of <span id="caseTot"></span> · first try 10 pts · second try 5 pts · perfect case +5</p>
+  </div>
+
+  <!-- done -->
+  <div id="vDone" class="card center hide">
+    <div class="badge" style="margin:0 auto 12px">🏆</div>
+    <h1>All cases <em>closed</em></h1>
+    <div class="big" id="doneScore">0</div>
+    <p class="mut">Every case solved. Look at the board for the podium.</p>
+  </div>
+</div>
+<script src="config.js?v=1"></script>
+<script src="data.js?v=1"></script>
+<script>
+const $=id=>document.getElementById(id);
+const KEY='invrep-v1';
+const API_URL=window.API_URL||'';
+const apiReady=()=>API_URL && API_URL.indexOf('PASTE_')!==0;
+async function api(method,body){
+  if(!apiReady()) throw new Error('no-api');
+  const o={method,redirect:'follow'};
+  if(method==='POST'){o.headers={'Content-Type':'text/plain;charset=utf-8'};o.body=JSON.stringify(body);}
+  const r=await fetch(API_URL,o); return r.json();
+}
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const ALL={}; DETECTIVE.forEach(d=>ALL[d.id]=Object.assign({role:'D'},d)); REPORTER.forEach(r=>ALL[r.id]=Object.assign({role:'R'},r));
+
+let S=null;            // persisted state
+let T={expirationMs:0,running:false,skew:0};
+let cur={tries:0,placed:[],pool:[],clean:true,locked:false};
+function fresh(name,offline){return {name,offline:!!offline,epoch:'',score:0,asked:0,first:0,second:0,streak:0,bestStreak:0,cases:0,
+  queue:shuffle(Object.keys(ALL)),qi:0,step:0,caseClean:true};}
+function save(){ try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){} }
+function load(){ try{const s=JSON.parse(localStorage.getItem(KEY)); if(s&&s.name&&s.queue&&s.queue.every(id=>ALL[id])) return s;}catch(e){} return null; }
+function show(v){['vJoin','vWait','vPlay','vDone'].forEach(x=>$(x).classList.toggle('hide',x!==v));}
+function hud(){ $('score').textContent=S?S.score:0; $('streak').textContent=S?S.streak:0; if(S) $('who').textContent=S.name+(S.offline?' · solo':''); }
+
+/* ---------- sync ---------- */
+let sending=false, dirty=false;
+function applyTimer(r){
+  if(!r) return;
+  if(r.timer){ T.expirationMs=r.timer.expirationMs||0; T.running=!!r.timer.running; if(r.now) T.skew=r.now-Date.now(); }
+  if(S && !S.offline && r.epoch && S.epoch && String(r.epoch)!==String(S.epoch)){ // teacher pressed Reset
+    const n=S.name; S=fresh(n,false); S.epoch=String(r.epoch); save(); hud(); api('POST',{action:'register',team:n}).catch(()=>{}); route(); return;
+  }
+  if(S && r.epoch && !S.epoch){ S.epoch=String(r.epoch); save(); }
+}
+async function sync(){
+  if(!S||S.offline) return;
+  if(sending){dirty=true;return;}
+  sending=true;
+  try{ const r=await api('POST',{action:'score',team:S.name,epoch:S.epoch,score:S.score,asked:S.asked,first:S.first,second:S.second,bestStreak:S.bestStreak,cases:S.cases});
+       applyTimer(r); }catch(e){}
+  sending=false; if(dirty){dirty=false;sync();} else tick();
+}
+function remaining(){ return T.expirationMs-(Date.now()+T.skew); }
+function roundLive(){ return S && (S.offline || (T.running && remaining()>0)); }
+function tick(){
+  const c=$('clock');
+  if(!S||S.offline){c.textContent=S?'solo':'--:--';c.className='pill';return;}
+  if(T.running && remaining()>0){ const s=Math.floor(remaining()/1000); c.textContent=Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); c.className='pill'+(s<=30?' warn':''); }
+  else c.textContent='--:--';
+  const playing=!$('vPlay').classList.contains('hide'), waiting=!$('vWait').classList.contains('hide');
+  if(playing && !roundLive()) route();
+  if(waiting && roundLive()) route();
+}
+setInterval(tick,500);
+/* light polling only while waiting (before the round / after time is up) */
+setInterval(async()=>{ if(!S||S.offline) return; if($('vWait').classList.contains('hide')&&$('vDone').classList.contains('hide')) return;
+  try{ applyTimer(await api('GET')); tick(); }catch(e){} },4000);
+
+function route(){
+  hud();
+  if(!S){show('vJoin');return;}
+  if(!roundLive()){
+    const over=T.expirationMs>0;
+    $('waitTitle').innerHTML=over?'Time’s <em>up</em>':'Waiting for the round to start';
+    $('waitMsg').textContent=over?'Pens down. Look at the board for the podium.':'Watch the board. Your first case opens when T.Chris starts the timer.';
+    $('waitScore').textContent=over?S.score:'';
+    show('vWait'); return;
+  }
+  if(S.qi>=S.queue.length){ $('doneScore').textContent=S.score; show('vDone'); return; }
+  show('vPlay'); render();
+}
+
+/* ---------- game ---------- */
+function award(ok){
+  S.asked++;
+  let pts=0;
+  if(ok){ if(cur.tries===0){pts=10;S.first++;S.streak++;S.bestStreak=Math.max(S.bestStreak,S.streak);} else {pts=5;S.second++;S.streak=0;S.caseClean=false;} }
+  else { S.streak=0; S.caseClean=false; }
+  let bonus=0;
+  if(S.step===2){ S.cases++; if(S.caseClean){bonus=5;} }
+  S.score+=pts+bonus; cur.locked=true; save(); hud(); sync();
+  return {pts,bonus};
+}
+function feedback(ok,html,res){
+  const gain=res? (res.pts?'+'+res.pts+' pts':'0 pts')+(res.bonus?' · perfect case +'+res.bonus:''):'';
+  $('fb').innerHTML='<div class="fb'+(ok?'':' no')+'"><b>'+(ok?'Correct. ':'Not this time. ')+gain+'</b><br>'+html+'</div>';
+}
+function finishStep(){ $('nextBtn').classList.remove('hide'); $('checkBtn').classList.add('hide'); $('resetBtn').classList.add('hide'); }
+$('nextBtn').onclick=()=>{ S.step++; if(S.step>2){S.step=0;S.qi++;S.caseClean=true;} save(); route(); };
+
+function mc(correct,wrongs,onDone){
+  const opts=shuffle([correct].concat(wrongs));
+  const area=$('area'); area.innerHTML='<div class="opts"></div>'; const box=area.firstChild;
+  opts.forEach(o=>{ const b=document.createElement('button'); b.className='opt'; b.textContent=o;
+    b.onclick=()=>{ if(cur.locked||b.disabled) return;
+      if(o===correct){ b.classList.add('right'); box.querySelectorAll('.opt').forEach(x=>x.disabled=true); onDone(true); }
+      else{ b.classList.add('wrong'); b.disabled=true;
+        if(cur.tries===0){ cur.tries=1; $('fb').innerHTML='<div class="fb no"><b>Not quite.</b> One more try for 5 points.</div>'; }
+        else{ box.querySelectorAll('.opt').forEach(x=>{x.disabled=true; if(x.textContent===correct) x.classList.add('right');}); onDone(false); } } };
+    box.appendChild(b); });
+}
+function order(blocks,onDone){
+  const target=blocks.join(' ');
+  cur.pool=shuffle(blocks.map((t,i)=>({t,i}))); 
+  if(cur.pool.map(x=>x.t).join(' ')===target) cur.pool.reverse();
+  cur.placed=[];
+  const area=$('area'); area.innerHTML='<div class="line" id="line"></div><div class="blocks" id="pool"></div>';
+  const draw=()=>{ const line=$('line'), pool=$('pool'); line.innerHTML=''; pool.innerHTML='';
+    cur.placed.forEach((x,k)=>{ const b=document.createElement('button'); b.className='blk'; b.textContent=x.t; b.disabled=cur.locked;
+      b.onclick=()=>{ if(cur.locked) return; cur.placed.splice(k,1); draw(); }; line.appendChild(b); });
+    cur.pool.filter(x=>cur.placed.indexOf(x)<0).forEach(x=>{ const b=document.createElement('button'); b.className='blk'; b.textContent=x.t; b.disabled=cur.locked;
+      b.onclick=()=>{ if(cur.locked) return; cur.placed.push(x); draw(); }; pool.appendChild(b); });
+    $('checkBtn').disabled=cur.placed.length!==blocks.length; line.classList.remove('no'); };
+  draw();
+  $('resetBtn').classList.remove('hide'); $('checkBtn').classList.remove('hide');
+  $('resetBtn').onclick=()=>{ if(cur.locked) return; cur.placed=[]; draw(); };
+  $('checkBtn').onclick=()=>{ if(cur.locked) return;
+    const ok=cur.placed.map(x=>x.t).join(' ')===target;
+    if(ok){ $('line').classList.add('ok'); onDone(true); draw(); $('line').classList.add('ok'); }
+    else if(cur.tries===0){ cur.tries=1; $('line').classList.add('no'); $('fb').innerHTML='<div class="fb no"><b>Not quite.</b> Reset or tap a block to move it. One more try for 5 points.</div>'; }
+    else{ onDone(false); draw(); $('line').classList.add('no'); } };
+}
+function pickBlock(parts,idx,onDone){
+  const area=$('area'); area.innerHTML='<div class="blocks"></div>'; const box=area.firstChild;
+  parts.forEach((p,i)=>{ const b=document.createElement('button'); b.className='blk'; b.textContent=p.replace(/[.]$/,'');
+    b.onclick=()=>{ if(cur.locked||b.disabled) return;
+      if(i===idx){ b.classList.add('right'); onDone(true); }
+      else{ b.classList.add('wrong'); b.disabled=true;
+        if(cur.tries===0){ cur.tries=1; $('fb').innerHTML='<div class="fb no"><b>Not quite.</b> The object receives the action. One more try for 5 points.</div>'; }
+        else{ box.children[idx].classList.add('right'); onDone(false); } } };
+    box.appendChild(b); });
+}
+function fillGap(tpl,be){ const parts=be?be.split(' … '):[]; let k=0;
+  return esc(tpl).replace(/____/g,()=>'<span class="gap">'+(be?esc(parts[Math.min(k++,parts.length-1)]):'&nbsp;')+'</span>'); }
+
+function render(){
+  const it=ALL[S.queue[S.qi]], st=S.step;
+  cur={tries:0,placed:[],pool:[],locked:false};
+  document.body.classList.toggle('rep',it.role==='R');
+  $('fb').innerHTML=''; ['nextBtn','checkBtn','resetBtn'].forEach(x=>$(x).classList.add('hide'));
+  [0,1,2].forEach(i=>$('s'+i).className=i<st?'done':i===st?'on':'');
+  $('caseNo').textContent=S.qi+1; $('caseTot').textContent=S.queue.length;
+  const done=(ok,html)=>{ const res=award(ok); feedback(ok,html,res); finishStep(); };
+  if(it.role==='D'){
+    $('rIcon').textContent='🕵️'; $('rKick').textContent='Role 1 · Detective · task '+(st+1)+' of 3'; $('rTitle').textContent='Who did it?';
+    $('src').textContent='CASE FILE · '+it.src+' · '+it.tense+' passive';
+    const full=it.gap.replace(/____/g,(()=>{const p=it.be.split(' … ');let k=0;return()=>p[Math.min(k++,p.length-1)];})());
+    if(st===0){
+      $('sent').innerHTML=fillGap(it.gap,''); $('q').textContent='Task 1 · Which form of be is missing?';
+      mc(it.be,it.beWrong,ok=>{ $('sent').innerHTML=fillGap(it.gap,it.be); done(ok,'<b>'+esc(it.be)+'</b> = '+esc(it.tense)+'. The tense lives in <i>be</i>; the past participle never changes.'); });
+    }else if(st===1){
+      $('sent').innerHTML=fillGap(it.gap,it.be); $('q').textContent='Task 2 · Who or what did the action? (This is the subject of the active sentence.)';
+      mc(it.doer,it.doerWrong,ok=>done(ok,'Doer: <b>'+esc(it.doer)+'</b>. '+(it.named?'The by-phrase names the doer because it is new information.':'The report does not name the doer, which is why the writer chose the passive.')));
+    }else{
+      $('sent').textContent=full; $('q').textContent='Task 3 · Rebuild the sentence in the active. Start with the doer and keep the tense.';
+      order(it.active,ok=>done(ok,'Active: <b>'+esc(it.active.join(' '))+'</b>'));
+    }
+  }else{
+    $('rIcon').textContent='📰'; $('rKick').textContent='Role 2 · Reporter · task '+(st+1)+' of 3'; $('rTitle').textContent='Write it up in the passive';
+    $('src').textContent='NEWS DESK · '+it.tense+' · adapted from the flood reports';
+    const act=it.parts.join(' '); $('sent').textContent=act;
+    if(st===0){
+      $('sent').textContent=''; $('q').textContent='Task 1 · Tap the object of this active sentence.';
+      pickBlock(it.parts,it.obj,ok=>{ $('sent').textContent=act; done(ok,'Object: <b>'+esc(it.parts[it.obj].replace(/[.]$/,''))+'</b>. It becomes the subject of the passive sentence.'); });
+    }else if(st===1){
+      $('q').textContent='Task 2 · Which is the past participle (V3) of “'+it.verb+'”?';
+      mc(it.v3,it.v3Wrong,ok=>done(ok,'Passive = be + <b>'+esc(it.v3)+'</b>. Only <i>be</i> changes with the tense.'));
+    }else{
+      $('q').textContent='Task 3 · Build the passive sentence. Keep the tense ('+it.tense+').'+(it.dropAgent?' The doer is obvious, so the reporter drops it.':'');
+      order(it.passive,ok=>done(ok,'Passive: <b>'+esc(it.passive.join(' '))+'</b>'));
+    }
+  }
+}
+
+/* ---------- join ---------- */
+async function join(offline){
+  const n=$('name').value.trim().replace(/\s+/g,' ');
+  if(!n){$('joinMsg').textContent='Type a nickname first.';return;}
+  if(offline||!apiReady()){ S=fresh(n,true); save(); route(); return; }
+  $('joinBtn').disabled=true; $('joinMsg').textContent='Connecting…';
+  try{ const r=await api('POST',{action:'register',team:n}); 
+       S=fresh(n,false); S.epoch=String(r.epoch||''); 
+       if(r.saved&&r.saved.score){ $('joinMsg').textContent='That nickname is already playing. Add your class number.'; S=null; $('joinBtn').disabled=false; return; }
+       applyTimer(r); save(); if(!r.saved) sync(); route(); }
+  catch(e){ $('joinMsg').textContent='Could not reach the board. Try again, or use Solo practice.'; }
+  $('joinBtn').disabled=false;
+}
+$('joinBtn').onclick=()=>join(false); $('soloBtn').onclick=()=>join(true);
+$('name').addEventListener('keydown',e=>{if(e.key==='Enter')join(false);});
+
+(async function init(){
+  S=load(); hud();
+  if(S && !S.offline && apiReady()){ try{ applyTimer(await api('GET')); }catch(e){} }
+  route();
+})();
+</script>
+</body>
+</html>
