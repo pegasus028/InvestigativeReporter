@@ -88,12 +88,13 @@ a.lnk{color:var(--mut);font-size:12px}
       <div class="steps"><i id="s0"></i><i id="s1"></i><i id="s2"></i></div>
       <div class="src" id="src"></div>
       <div class="sent" id="sent"></div>
+      <div class="mut" id="gloss"></div>
       <div class="q" id="q"></div>
       <div id="area"></div>
       <div id="fb"></div>
       <div class="row"><button class="btn ghost hide" id="resetBtn">↺ Reset</button><button class="btn hide" id="checkBtn">Check</button><button class="btn hide" id="nextBtn">Next →</button></div>
     </div>
-    <p class="mut center">Case <span id="caseNo">1</span> of <span id="caseTot"></span> · first try 10 pts · second try 5 pts · perfect case +5</p>
+    <p class="mut center">Case <span id="caseNo">1</span> of <span id="caseTot"></span> · first try = 10 · second try = 5 · all 3 tasks right first time = +5 bonus</p>
   </div>
 
   <!-- done -->
@@ -105,7 +106,7 @@ a.lnk{color:var(--mut);font-size:12px}
   </div>
 </div>
 <script src="config.js?v=2"></script>
-<script src="data.js?v=2"></script>
+<script src="data.js?v=3"></script>
 <script>
 const $=id=>document.getElementById(id);
 const KEY='invrep-v1';
@@ -123,7 +124,7 @@ const ALL={}; DETECTIVE.forEach(d=>ALL[d.id]=Object.assign({role:'D'},d)); REPOR
 
 let S=null;            // persisted state
 let T={expirationMs:0,running:false,skew:0};
-let cur={tries:0,placed:[],pool:[],clean:true,locked:false};
+let cur={tries:0,placed:[],pool:[],clean:true,locked:false}; let HINT='';
 function fresh(name,offline){return {name,offline:!!offline,epoch:'',score:0,asked:0,first:0,second:0,streak:0,bestStreak:0,cases:0,
   queue:shuffle(Object.keys(ALL)),qi:0,step:0,caseClean:true};}
 function save(){ try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){} }
@@ -183,7 +184,7 @@ function route(){
 function award(ok){
   S.asked++;
   let pts=0;
-  if(ok){ if(cur.tries===0){pts=10;S.first++;S.streak++;S.bestStreak=Math.max(S.bestStreak,S.streak);} else {pts=5;S.second++;S.streak=0;S.caseClean=false;} }
+  if(ok){ if(cur.tries===0){pts=10;S.first++;S.streak++;S.bestStreak=Math.max(S.bestStreak,S.streak);} else {pts=5;S.second++;S.caseClean=false;} }
   else { S.streak=0; S.caseClean=false; }
   let bonus=0;
   if(S.step===2){ S.cases++; if(S.caseClean){bonus=5;} }
@@ -204,14 +205,14 @@ function mc(correct,wrongs,onDone){
     b.onclick=()=>{ if(cur.locked||b.disabled) return;
       if(o===correct){ b.classList.add('right'); box.querySelectorAll('.opt').forEach(x=>x.disabled=true); onDone(true); }
       else{ b.classList.add('wrong'); b.disabled=true;
-        if(cur.tries===0){ cur.tries=1; $('fb').innerHTML='<div class="fb no"><b>Not quite.</b> One more try for 5 points.</div>'; }
+        if(cur.tries===0){ cur.tries=1; $('fb').innerHTML='<div class="fb no"><b>Not quite.</b> One more try for 5 points.'+(HINT?'<br>'+HINT:'')+'</div>'; }
         else{ box.querySelectorAll('.opt').forEach(x=>{x.disabled=true; if(x.textContent===correct) x.classList.add('right');}); onDone(false); } } };
     box.appendChild(b); });
 }
-function order(blocks,onDone){
-  const target=blocks.join(' ');
+function order(blocks,onDone,alts){
+  const norm=a=>a.join(' ').replace(/[.]/g,''); const targets=[blocks].concat(alts||[]).map(norm);
   cur.pool=shuffle(blocks.map((t,i)=>({t,i}))); 
-  if(cur.pool.map(x=>x.t).join(' ')===target) cur.pool.reverse();
+  if(targets.indexOf(norm(cur.pool.map(x=>x.t)))>=0) cur.pool.reverse();
   cur.placed=[];
   const area=$('area'); area.innerHTML='<div class="line" id="line"></div><div class="blocks" id="pool"></div>';
   const draw=()=>{ const line=$('line'), pool=$('pool'); line.innerHTML=''; pool.innerHTML='';
@@ -224,9 +225,9 @@ function order(blocks,onDone){
   $('resetBtn').classList.remove('hide'); $('checkBtn').classList.remove('hide');
   $('resetBtn').onclick=()=>{ if(cur.locked) return; cur.placed=[]; draw(); };
   $('checkBtn').onclick=()=>{ if(cur.locked) return;
-    const ok=cur.placed.map(x=>x.t).join(' ')===target;
+    const ok=targets.indexOf(norm(cur.placed.map(x=>x.t)))>=0;
     if(ok){ $('line').classList.add('ok'); onDone(true); draw(); $('line').classList.add('ok'); }
-    else if(cur.tries===0){ cur.tries=1; $('line').classList.add('no'); $('fb').innerHTML='<div class="fb no"><b>Not quite.</b> Reset or tap a block to move it. One more try for 5 points.</div>'; }
+    else if(cur.tries===0){ cur.tries=1; $('line').classList.add('no'); $('fb').innerHTML='<div class="fb no"><b>Not quite.</b> Reset, or tap a block to move it. One more try for 5 points.'+(HINT?'<br>'+HINT:'')+'</div>'; }
     else{ onDone(false); draw(); $('line').classList.add('no'); } };
 }
 function pickBlock(parts,idx,onDone){
@@ -235,33 +236,35 @@ function pickBlock(parts,idx,onDone){
     b.onclick=()=>{ if(cur.locked||b.disabled) return;
       if(i===idx){ b.classList.add('right'); onDone(true); }
       else{ b.classList.add('wrong'); b.disabled=true;
-        if(cur.tries===0){ cur.tries=1; $('fb').innerHTML='<div class="fb no"><b>Not quite.</b> The object receives the action. One more try for 5 points.</div>'; }
+        if(cur.tries===0){ cur.tries=1; $('fb').innerHTML='<div class="fb no"><b>Not quite.</b> Find the verb first. The object usually comes straight after it. One more try for 5 points.</div>'; }
         else{ box.children[idx].classList.add('right'); onDone(false); } } };
     box.appendChild(b); });
 }
 function fillGap(tpl,be){ const parts=be?be.split(' … '):[]; let k=0;
   return esc(tpl).replace(/____/g,()=>'<span class="gap">'+(be?esc(parts[Math.min(k++,parts.length-1)]):'&nbsp;')+'</span>'); }
 
+function glossFor(it){ const txt=(it.gap||'')+' '+(it.parts||[]).join(' ')+' '+(it.active||[]).join(' '); const g=[]; for(const k in (window.GLOSS||{})) if(txt.toLowerCase().indexOf(k)>=0) g.push(GLOSS[k]); $('gloss').textContent=g.join(' · '); }
 function render(){
   const it=ALL[S.queue[S.qi]], st=S.step;
   cur={tries:0,placed:[],pool:[],locked:false};
   document.body.classList.toggle('rep',it.role==='R');
+  HINT=''; glossFor(it);
   $('fb').innerHTML=''; ['nextBtn','checkBtn','resetBtn'].forEach(x=>$(x).classList.add('hide'));
   [0,1,2].forEach(i=>$('s'+i).className=i<st?'done':i===st?'on':'');
   $('caseNo').textContent=S.qi+1; $('caseTot').textContent=S.queue.length;
   const done=(ok,html)=>{ const res=award(ok); feedback(ok,html,res); finishStep(); };
   if(it.role==='D'){
     $('rIcon').textContent='🕵️'; $('rKick').textContent='Role 1 · Detective · task '+(st+1)+' of 3'; $('rTitle').textContent='Who did it?';
-    $('src').textContent='CASE FILE · '+it.src+' · '+it.tense+' passive';
+    $('src').textContent='CASE FILE · '+it.src+(st>0?' · '+it.tense+' passive':'');
     const full=it.gap.replace(/____/g,(()=>{const p=it.be.split(' … ');let k=0;return()=>p[Math.min(k++,p.length-1)];})());
     if(st===0){
-      $('sent').innerHTML=fillGap(it.gap,''); $('q').textContent='Task 1 · Which form of be is missing?';
-      mc(it.be,it.beWrong,ok=>{ $('sent').innerHTML=fillGap(it.gap,it.be); done(ok,'<b>'+esc(it.be)+'</b> = '+esc(it.tense)+'. The tense lives in <i>be</i>; the past participle never changes.'); });
+      $('sent').innerHTML=fillGap(it.gap,''); $('q').textContent='Task 1 · Which form of be is missing?'+(it.be.indexOf(' … ')>0?' (Two gaps: first word … second word.)':''); HINT='Is the subject one thing or more than one? Is the verb group complete?';
+      mc(it.be,it.beWrong,ok=>{ $('sent').innerHTML=fillGap(it.gap,it.be); $('src').textContent='CASE FILE · '+it.src+' · '+it.tense+' passive'; done(ok,'<b>'+esc(it.be)+'</b> = '+esc(it.tense)+' passive. The words before the past participle show the tense and agree with the subject; the past participle itself never changes.'+(it.id==='D6'?' (<i>were being gradually increased</i> is also correct English.)':'')); });
     }else if(st===1){
-      $('sent').innerHTML=fillGap(it.gap,it.be); $('q').textContent='Task 2 · Who or what did the action? (This is the subject of the active sentence.)';
-      mc(it.doer,it.doerWrong,ok=>done(ok,'Doer: <b>'+esc(it.doer)+'</b>. '+(it.named?'The by-phrase names the doer because it is new information.':'The report does not name the doer, which is why the writer chose the passive.')));
+      $('sent').innerHTML=fillGap(it.gap,it.be); $('q').textContent=it.named?'Task 2 · Who or what did the action? (This is the subject of the active sentence.)':'Task 2 · The report does not say who did it. Who most likely did it? (This becomes the subject of the active sentence.)'; HINT='The doer is not the thing that receives the action.';
+      mc(it.doer,it.doerWrong,ok=>done(ok,'Doer: <b>'+esc(it.doer)+'</b>. '+(it.named?'The writer keeps the doer in a by-phrase because it is new or important information.':'This is the most likely doer, not a fact from the report. The writer left the doer out because it is obvious, unknown or not important.')));
     }else{
-      $('sent').textContent=full; $('q').textContent='Task 3 · Rebuild the sentence in the active. Start with the doer and keep the tense.';
+      $('sent').textContent=full; $('q').textContent='Task 3 · Rebuild the sentence in the active. Start with the doer and keep the tense.'; HINT='Active order: doer + verb + receiver. Tense: '+esc(it.tense)+'.';
       order(it.active,ok=>done(ok,'Active: <b>'+esc(it.active.join(' '))+'</b>'));
     }
   }else{
@@ -269,14 +272,14 @@ function render(){
     $('src').textContent='NEWS DESK · '+it.tense+' · adapted from the flood reports';
     const act=it.parts.join(' '); $('sent').textContent=act;
     if(st===0){
-      $('sent').textContent=''; $('q').textContent='Task 1 · Tap the object of this active sentence.';
+      $('sent').textContent=''; $('q').textContent='Task 1 · Tap the object: the person or thing that receives the action.';
       pickBlock(it.parts,it.obj,ok=>{ $('sent').textContent=act; done(ok,'Object: <b>'+esc(it.parts[it.obj].replace(/[.]$/,''))+'</b>. It becomes the subject of the passive sentence.'); });
     }else if(st===1){
-      $('q').textContent='Task 2 · Which is the past participle (V3) of “'+it.verb+'”?';
-      mc(it.v3,it.v3Wrong,ok=>done(ok,'Passive = be + <b>'+esc(it.v3)+'</b>. Only <i>be</i> changes with the tense.'));
+      $('sent').textContent=act.replace(it.parts[it.obj-1],'____'); $('q').textContent='Task 2 · Which is the past participle (V3) of “'+it.verb+'”?'; HINT='V3 is the form you use after have: “have ____”.';
+      mc(it.v3,it.v3Wrong,ok=>{ $('sent').textContent=act; done(ok,'Passive = be + <b>'+esc(it.v3)+'</b>. The past participle stays the same in every tense.'); });
     }else{
-      $('q').textContent='Task 3 · Build the passive sentence. Keep the tense ('+it.tense+').'+(it.dropAgent?' The doer is obvious, so the reporter drops it.':'');
-      order(it.passive,ok=>done(ok,'Passive: <b>'+esc(it.passive.join(' '))+'</b>'));
+      HINT='Passive order: receiver + be ('+esc(it.tense)+') + V3'+(it.dropAgent?'.':' + by + doer.'); $('q').textContent='Task 3 · Build the passive sentence. Keep the tense ('+it.tense+').'+(it.dropAgent?' The doer is obvious, so the reporter drops it.':'');
+      order(it.passive,ok=>done(ok,'Passive: <b>'+esc(it.passive.join(' '))+'</b>'),it.alt);
     }
   }
 }
