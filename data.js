@@ -57,7 +57,7 @@ window.DETECTIVE = [
   gap:"Her car, bought less than a month ago, ____ submerged.",
   be:"was", beWrong:["were","be","am"],
   doer:"Floodwater", doerWrong:["Her car","A month ago","The car dealer"], named:false,
-  active:["Floodwater","submerged","her car,","bought less than a month ago."]}
+  active:["Floodwater","submerged","her car,","which she had bought less than a month ago."]}
 ];
 window.REPORTER = [
  {id:"R1", tense:"present perfect", parts:["Extreme weather","has inundated","Bangkok’s drainage system."], obj:2,
@@ -77,9 +77,9 @@ window.REPORTER = [
  {id:"R5", tense:"present simple", parts:["Heavy rain and flooding","disrupt","the city’s traffic."], obj:2,
   verb:"disrupt", v3:"disrupted", v3Wrong:["disrupt","disrupts","disrupting"],
   passive:["The city’s traffic","is","disrupted","by heavy rain and flooding."]},
- {id:"R6", tense:"past continuous", parts:["Pumping stations","were pumping out","the floodwater."], obj:2,
+ {id:"R6", tense:"past continuous", parts:["City workers","were pumping out","the floodwater."], obj:2,
   verb:"pump", v3:"pumped", v3Wrong:["pump","pumps","pumping"],
-  passive:["The floodwater","was","being","pumped out","by pumping stations."]},
+  passive:["The floodwater","was","being","pumped out","by city workers."]},
  {id:"R7", tense:"past perfect", parts:["By October,","the floods","had displaced","thousands of residents."], obj:3,
   verb:"displace", v3:"displaced", v3Wrong:["displace","displaces","displacing"],
   passive:["By October,","thousands of residents","had","been","displaced","by the floods."]},
@@ -97,6 +97,7 @@ window.REPORTER = [
 
 /* short glosses for harder words (shown under the sentence) */
 window.GLOSS = {inundat:"inundate = flood completely", displac:"displace = force people to leave their homes", submerg:"submerged = completely under water",
- disrupt:"disrupt = stop something from working normally", discharg:"water discharges = water let out of a dam", impact:"impacted = badly affected",
+ disrupt:"disrupt = stop something from continuing or working normally", discharg:"water discharges = water let out of a dam", impact:"impacted = badly affected",
  "cell broadcast":"cell broadcast alert = a warning sent to every mobile phone", "hardest hit":"hardest hit = damaged the most", evacuat:"evacuate = move people out of danger",
- "tap water":"drink – drank – drunk: drunk is the V3", "fend for":"fend for themselves = look after themselves with no help"};
+ "tap water":"drink – drank – drunk: drunk is the V3", "fend for":"fend for themselves = look after themselves with no help",
+ restock:"restock = fill up again with supplies", disinfect:"disinfect = clean something to kill germs", flatten:"flatten = press down flat", "cut off":"cut off = separate a place so nobody can reach it"};

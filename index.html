@@ -116,8 +116,8 @@ a.lnk{color:var(--mut);font-size:12px}
   </div>
 </div>
 <script src="config.js?v=3"></script>
-<script src="data.js?v=5"></script>
-<script src="data-adv.js?v=1"></script>
+<script src="data.js?v=6"></script>
+<script src="data-adv.js?v=2"></script>
 <script>
 const $=id=>document.getElementById(id);
 const KEY='invrep-v1';
@@ -284,13 +284,13 @@ function render(){
     $('src').textContent='CASE FILE · '+it.src+(st>0?' · '+lab:'');
     const full=it.gap.replace(/____/g,(()=>{const p=it.be.split(' / ');let k=0;return()=>p[Math.min(k++,p.length-1)];})());
     if(st===0){
-      $('sent').innerHTML=fillGap(it.gap,''); $('q').textContent=it.adv?'Task 1 · Look at the word before the gap (the shell). Which form of be goes in?':'Task 1 · Which form of be is missing?'+(it.be.indexOf(' / ')>0?' (Two gaps: first word / second word.)':''); HINT=it.adv?'Modal or to → be · have / having → been · is, are, was, were or a preposition → being.':'Is the subject one thing or more than one? Is the verb group complete?';
+      $('sent').innerHTML=fillGap(it.gap,''); $('q').textContent=it.adv?'Task 1 · Look at the word before the gap (the shell). Which form of be goes in?':'Task 1 · Which form of be is missing?'+(it.be.indexOf(' / ')>0?' (Two gaps: first word / second word.)':''); HINT=it.adv?'Modal or to → be · have / having → been · is, are, was, were or a preposition → being · be used to (= familiar with) → being.':'Is the subject one thing or more than one? Is the verb group complete?';
       mc(it.be,it.beWrong,ok=>{ $('sent').innerHTML=fillGap(it.gap,it.be); $('src').textContent='CASE FILE · '+it.src+' · '+lab; if(it.adv){ done(ok,'<b>'+esc(it.be)+'</b> · shell: '+esc(it.shell)+'. '+esc(it.why)); return; } done(ok,'<b>'+esc(it.be)+'</b> = '+esc(it.tense)+' passive. The words before the past participle show the tense and agree with the subject; the past participle itself never changes.'+(it.id==='D6'?' (<i>were being gradually increased</i> is also correct English.)':'')); });
     }else if(st===1){
       $('sent').innerHTML=fillGap(it.gap,it.be); $('q').textContent=it.named?'Task 2 · Who or what did the action? (This is the subject of the active sentence.)':'Task 2 · The report does not say who did it. Who most likely did it? (This becomes the subject of the active sentence.)'; HINT='The doer is not the thing that receives the action.';
       mc(it.doer,it.doerWrong,ok=>done(ok,'Doer: <b>'+esc(it.doer)+'</b>. '+(it.named?'The writer keeps the doer in a by-phrase because it is new or important information.':'This is the most likely doer, not a fact from the report. The writer left the doer out because it is obvious, unknown or not important.')));
     }else{
-      $('sent').textContent=full; $('q').textContent=it.adv?'Task 3 · Rebuild the sentence in the active. Start with the doer; keep the modal or the time.':'Task 3 · Rebuild the sentence in the active. Start with the doer and keep the tense.'; HINT=it.adv?'Active order: doer + verb + receiver. Keep the shell word (could, must, should have, seems to have…) with the doer.':'Active order: doer + verb + receiver. Tense: '+esc(it.tense)+'.';
+      $('sent').textContent=full; $('q').textContent=it.adv?'Task 3 · Rebuild the sentence in the active: the doer becomes the subject of the verb. Start with the block that has a capital letter; keep the modal or the time.':'Task 3 · Rebuild the sentence in the active. Start with the doer and keep the tense.'; HINT=it.adv?'Find the verb, put the doer in front of it and the receiver after it. Keep the shell word (could, must, should have, seems to have…) with the doer.':'Active order: doer + verb + receiver. Tense: '+esc(it.tense)+'.';
       order(it.active,ok=>done(ok,'Active: <b>'+esc(it.active.join(' '))+'</b>'));
     }
   }else{
