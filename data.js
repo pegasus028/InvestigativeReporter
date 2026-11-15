@@ -98,4 +98,5 @@ window.REPORTER = [
 /* short glosses for harder words (shown under the sentence) */
 window.GLOSS = {inundat:"inundate = flood completely", displac:"displace = force people to leave their homes", submerg:"submerged = completely under water",
  disrupt:"disrupt = stop something from working normally", discharg:"water discharges = water let out of a dam", impact:"impacted = badly affected",
- "cell broadcast":"cell broadcast alert = a warning sent to every mobile phone", "hardest hit":"hardest hit = damaged the most", evacuat:"evacuate = move people out of danger"};
+ "cell broadcast":"cell broadcast alert = a warning sent to every mobile phone", "hardest hit":"hardest hit = damaged the most", evacuat:"evacuate = move people out of danger",
+ "tap water":"drink – drank – drunk: drunk is the V3", "fend for":"fend for themselves = look after themselves with no help"};
