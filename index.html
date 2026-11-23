@@ -173,7 +173,7 @@ function applyTimer(r){
   if(!r) return;
   if(r.timer){ T.expirationMs=r.timer.expirationMs||0; T.running=!!r.timer.running; if(r.now) T.skew=r.now-Date.now(); }
   if(S && !S.offline && r.epoch && S.epoch && String(r.epoch)!==String(S.epoch)){ // teacher pressed Reset
-    const n=S.name, m=S.mode0||S.mode||'std'; S=fresh(n,false,m); S.epoch=String(r.epoch); save(); hud(); api('POST',{action:'register',team:n}).catch(()=>{}); route(); return;
+    const n=S.name, m=S.mode0||S.mode||'std'; S=fresh(n,false,m); S.epoch=String(r.epoch); save(); hud(); api('POST',{action:'register',team:n,mode:m}).catch(()=>{}); route(); return;
   }
   if(S && r.epoch && !S.epoch){ S.epoch=String(r.epoch); save(); }
 }
@@ -181,7 +181,7 @@ async function sync(){
   if(!S||S.offline) return;
   if(sending){dirty=true;return;}
   sending=true;
-  try{ const r=await api('POST',{action:'score',team:S.name,epoch:S.epoch,score:S.score,asked:S.asked,first:S.first,second:S.second,bestStreak:S.bestStreak,cases:S.cases});
+  try{ const r=await api('POST',{action:'score',team:S.name,mode:S.mode,epoch:S.epoch,score:S.score,asked:S.asked,first:S.first,second:S.second,bestStreak:S.bestStreak,cases:S.cases});
        applyTimer(r); }catch(e){}
   sending=false; if(dirty){dirty=false;sync();} else tick();
 }
@@ -345,7 +345,7 @@ function drawMore(){
   $('doneMsg').textContent=left.length?'Every case solved. Keep going with another set: your score keeps adding up'+(S.offline?'.':' on the board.'):'Every case solved. Look at the board for the podium.';
   const box=$('more'); box.innerHTML='';
   left.forEach(m=>{ const b=document.createElement('button'); b.className='btn'+(m==='adv2'?'':' ghost'); b.textContent='Keep going: '+MODE_NAME[m]+' ('+IDS[m].length+' cases)';
-    b.onclick=()=>{ S.queue=S.queue.concat(shuffle(IDS[m])); S.mode=m; S.step=0; S.caseClean=true; save(); route(); window.scrollTo(0,0); }; box.appendChild(b); });
+    b.onclick=()=>{ S.queue=S.queue.concat(shuffle(IDS[m])); S.mode=m; S.step=0; S.caseClean=true; save(); hud(); sync(); route(); window.scrollTo(0,0); }; box.appendChild(b); });
 }
 
 function render(){
@@ -405,7 +405,7 @@ async function join(offline){
   if(!n){$('joinMsg').textContent=HAS_ROSTER?'Choose your name first.':'Type a nickname first.';return;}
   if(offline||!apiReady()){ S=fresh(n,true,MODE); save(); route(); return; }
   $('joinBtn').disabled=true; $('joinMsg').textContent='Connecting…';
-  try{ const r=await api('POST',{action:'register',team:n}); 
+  try{ const r=await api('POST',{action:'register',team:n,mode:MODE}); 
        S=fresh(n,false,MODE); S.epoch=String(r.epoch||''); 
        if(r.saved&&r.saved.score){ if(HAS_ROSTER){ ['score','asked','first','second','bestStreak','cases'].forEach(k=>S[k]=r.saved[k]||0); }
          else { $('joinMsg').textContent='That nickname is already playing. Add your class number.'; S=null; $('joinBtn').disabled=false; return; } }

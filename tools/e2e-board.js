@@ -20,10 +20,11 @@ function post(b) {
     const team = String(b.team || '').trim().slice(0, 24); const ep = P.epoch || '1';
     if (a === 'score' && String(b.epoch) !== ep) return {ok: true, stale: true, epoch: ep, timer: timer_(), now: Date.now()};
     const key = 'T:' + team.toLowerCase(), cur = P[key];
-    if (a === 'register' && cur) return {ok: true, epoch: ep, timer: timer_(), now: Date.now(), saved: JSON.parse(cur)};
+    const mode = ['std', 'adv', 'adv2'].indexOf(b.mode) >= 0 ? b.mode : '';
+    if (a === 'register' && cur) { const c = JSON.parse(cur); if (mode && c.mode !== mode) { c.mode = mode; P[key] = JSON.stringify(c); } return {ok: true, epoch: ep, timer: timer_(), now: Date.now(), saved: c}; }
     const asked = Math.max(0, +b.asked || 0), first = Math.max(0, +b.first || 0);
     const rec = {team, score: Math.max(0, Math.min(5000, +b.score || 0)), asked, first, second: +b.second || 0, firstTry: first, secondTry: +b.second || 0,
-      bestStreak: +b.bestStreak || 0, cases: +b.cases || 0, accuracy: asked ? Math.round(first / asked * 100) : 0};
+      bestStreak: +b.bestStreak || 0, cases: +b.cases || 0, accuracy: asked ? Math.round(first / asked * 100) : 0, mode: mode || (cur ? (JSON.parse(cur).mode || '') : '')};
     P[key] = JSON.stringify(rec); return {ok: true, epoch: ep, timer: timer_(), now: Date.now(), score: rec.score};
   }
   if (a === 'start') { const m = Math.max(1, Math.min(60, +b.minutes || 10)); P.timer = JSON.stringify({expirationMs: Date.now() + m * 60000, running: true}); return {ok: true}; }
@@ -79,6 +80,24 @@ async function playTasks(page, n) {
   const scores = getAll().teams.map(t => t.team + ' ' + t.score + ' (' + t.cases + ' cases)');
   console.log('backend: ' + scores.join(' · '));
   if (getAll().teams.some(t => t.score !== 105)) fail('expected 105 each');
+  const dots = await board.evaluate(() => [...document.querySelectorAll('#podStrip .nm, #feedList .t')].map(e => { const d = e.querySelector('.md'); return e.textContent.replace(/^\D*\d+\.\s*/, '').trim() + ':' + (d ? d.className.replace('md ', '') : 'none'); }));
+  console.log('board dots: ' + dots.join(' '));
+  for (const s of students) { if (dots.filter(d => d === s.name + ':' + s.mode).length !== 2) fail(s.name + ' dot should be ' + s.mode + ' on card and standings'); }
+  // more students so the chasing pack (chart / bars) shows dots too
+  for (const [n, m] of [['Guest#4', 'adv2'], ['Guest#5', 'std']]) post({action: 'register', team: n, mode: m});
+  post({action: 'score', team: 'Guest#4', mode: 'adv2', epoch: '1', score: 40, asked: 4, first: 4}); post({action: 'score', team: 'Guest#5', mode: 'std', epoch: '1', score: 20, asked: 2, first: 2});
+  await board.waitForTimeout(4000);
+  const pack = await board.evaluate(() => (window.chart && chart.data ? chart.data.labels : [...document.querySelectorAll('.fbname')].map(e => e.innerHTML)));
+  console.log('chasing pack labels: ' + JSON.stringify(pack));
+  if (!pack.length || !pack.every(l => /🟠|🟢|md (adv2|std)/.test(l))) fail('chasing pack has no mode dots');
+  // keep going changes the dot: Guest#3 (Standard) jumps to her done screen and keeps going into Advanced II
+  const g3 = students[2].p;
+  await g3.evaluate(() => { S.qi = S.queue.length; save(); route(); });
+  await g3.click('#more button >> text=Advanced II');
+  await board.waitForTimeout(4000);
+  const g3dot = await board.evaluate(() => { const e = [...document.querySelectorAll('#feedList .t')].find(x => /Guest#3/.test(x.textContent)); return e && e.querySelector('.md') ? e.querySelector('.md').className : 'none'; });
+  console.log('Guest#3 after Keep going into Advanced II: ' + g3dot);
+  if (!/adv2/.test(g3dot)) fail('dot did not change after Keep going');
   if (shots) await board.screenshot({path: path.join(shots, '10-board-live.png')});
   await board.click('#stopBtn'); await board.waitForTimeout(2500);
   const podiumOpen = await board.isVisible('#podium');

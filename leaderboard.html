@@ -102,6 +102,10 @@
   .kv{display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px dashed rgba(244,234,215,.14)}
   .kv:last-child{border-bottom:0}
   .kv b{font-family:'Fraunces',serif;font-size:16px}
+  /* mode dot before each name: Standard green · Advanced yellow · Advanced II orange */
+  .md{display:inline-block;width:.62em;height:.62em;border-radius:50%;margin-right:.38em;vertical-align:.08em;flex:0 0 auto;box-shadow:0 0 0 2px rgba(0,0,0,.35)}
+  .md.std{background:#3fae6d}.md.adv{background:#f2c94c}.md.adv2{background:#f08a24}
+  .mdkey{font-size:11px;font-weight:400;letter-spacing:.02em;color:rgba(244,234,215,.65);margin-left:8px;white-space:nowrap}
   .feed{flex:1;overflow:hidden;min-height:0;display:flex;flex-direction:column}
   .feedlist{overflow-y:auto;min-height:0;scrollbar-width:thin;scrollbar-color:rgba(200,150,30,.5) transparent}
   .feedlist::-webkit-scrollbar{width:6px}
@@ -279,7 +283,7 @@
         <div class="kv"><span>Top score</span><b id="kTop">0</b></div>
       </div>
       <div class="panel feed">
-        <h3>Full standings</h3>
+        <h3>Full standings <span class="mdkey"><span class="md std"></span>Standard <span class="md adv"></span>Advanced <span class="md adv2"></span>Advanced II</span></h3>
         <div class="feedlist" id="feedList"></div>
       </div>
     </div>
@@ -347,12 +351,14 @@ function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','
    ============================================================ */
 const podStrip = document.getElementById('podStrip');
 let cardState = {};          // team -> {el, score, rank}
-let lastOrder = [];
+let lastOrder = [], lastKey = '';
 
+const MODE_DOT={std:'🟢',adv:'🟡',adv2:'🟠'}, MODE_TXT={std:'Standard',adv:'Advanced',adv2:'Advanced II'};
+const dot=t=>MODE_TXT[t.mode]?'<span class="md '+t.mode+'" title="'+MODE_TXT[t.mode]+'"></span>':'';
 function renderTop3(sorted){
   const top = sorted.slice(0,3);
-  const names = top.map(t=>t.team).join('|');
-  const orderChanged = names !== lastOrder.join('|') || !podStrip.children.length;
+  const names = top.map(t=>t.team+'~'+(t.mode||'')).join('|');
+  const orderChanged = names !== lastKey || !podStrip.children.length;
 
   if(orderChanged){
     podStrip.innerHTML='';
@@ -368,7 +374,7 @@ function renderTop3(sorted){
         el.innerHTML =
           (i===0?'<div class="crown">👑</div>':'')+
           '<div class="rank">'+(i+1)+'</div>'+
-          '<div class="info"><div class="nm">'+esc(t.team)+'</div>'+
+          '<div class="info"><div class="nm">'+dot(t)+esc(t.team)+'</div>'+
           '<div class="meta">'+metaLine(t)+'</div></div>'+
           '<div><div class="sc" data-v="'+t.score+'">'+t.score+'</div><div class="delta"></div></div>';
         cardState[t.team]={el, score:t.score};
@@ -376,7 +382,7 @@ function renderTop3(sorted){
       podStrip.appendChild(el);
     }
     if(lastOrder.length && top[0] && lastOrder[0]!==top[0].team) leadChangeChime();
-    lastOrder = top.map(t=>t.team);
+    lastOrder = top.map(t=>t.team); lastKey = names;
   }else{
     top.forEach(t=>{
       const st=cardState[t.team]; if(!st) return;
@@ -440,7 +446,7 @@ function renderFallbackBars(rest){
   host.style.display='block';
   host.innerHTML = rest.map(function(t,i){
     var pct = Math.max(2, Math.round(t.score/max*100));
-    return '<div class="fbrow"><span class="fbname">'+(i+4)+'. '+esc(t.team)+'</span>'+
+    return '<div class="fbrow"><span class="fbname">'+(i+4)+'. '+dot(t)+esc(t.team)+'</span>'+
            '<span class="fbtrack"><span class="fbfill" style="width:'+pct+'%;background:'+
            COLORS[(i+3)%COLORS.length]+'"></span></span>'+
            '<span class="fbval">'+t.score+'</span></div>';
@@ -471,7 +477,7 @@ function renderBoard(teams){
     if(HAS_CHART){
       document.getElementById('chart').style.display='';
       document.getElementById('fallbackBars').style.display='none';
-      chart.data.labels = rest.map((t,i)=>(i+4)+'. '+t.team);
+      chart.data.labels = rest.map((t,i)=>(i+4)+'. '+(MODE_DOT[t.mode]?MODE_DOT[t.mode]+' ':'')+t.team);
       chart.data.datasets[0].data = rest.map(t=>t.score);
       chart.data.datasets[0].backgroundColor = rest.map((_,i)=>COLORS[(i+3)%COLORS.length]);
       chart.resize(); chart.update();
@@ -490,7 +496,7 @@ function renderBoard(teams){
   document.getElementById('kTop').textContent=sorted.length?sorted[0].score:0;
 
   document.getElementById('feedList').innerHTML=sorted.map((t,i)=>
-    '<div class="row'+(i<3?' top3':'')+'"><span class="t">'+(i<3?['🥇','🥈','🥉'][i]+' ':'')+(i+1)+'. '+esc(t.team)+'</span>'+
+    '<div class="row'+(i<3?' top3':'')+'"><span class="t">'+(i<3?['🥇','🥈','🥉'][i]+' ':'')+(i+1)+'. '+dot(t)+esc(t.team)+'</span>'+
     '<span class="acc">'+(t.level?t.level+' · ':'')+t.score+' pts'+(t.asked?' · '+(t.accuracy||0)+'%':'')+'</span></div>').join('');
 }
 
@@ -831,12 +837,12 @@ function showPodium(){
     const t=sorted[idx]; if(!t) return '';
     return '<div class="pcol'+(idx===0?' winner':'')+'">'+dancerSVG(idx+1)+
            '<div class="block '+cls[pos]+'"><div class="medal">'+medal[pos]+'</div>'+
-           '<div class="nm">'+esc(t.team)+'</div>'+
+           '<div class="nm">'+dot(t)+esc(t.team)+'</div>'+
            '<div class="sc">'+t.score+'</div>'+
            '<div class="ac">'+metaLine(t)+'</div></div></div>';
   }).join('');
   document.getElementById('rest').innerHTML = sorted.slice(3,12)
-    .map((t,i)=>(i+4)+'. '+esc(t.team)+' — '+t.score+' pts ('+(t.accuracy||0)+'%)').join('<br>');
+    .map((t,i)=>(i+4)+'. '+dot(t)+esc(t.team)+' — '+t.score+' pts ('+(t.accuracy||0)+'%)').join('<br>');
   fillClaps();
   document.getElementById('podium').classList.add('show');
   stopMusic();

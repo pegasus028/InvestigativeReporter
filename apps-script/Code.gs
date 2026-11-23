@@ -21,11 +21,14 @@ function doPost(e){
     var ep = epoch_();
     if (a === 'score' && String(b.epoch) !== ep) return out({ok:true, stale:true, epoch:ep, timer:timer_(), now:Date.now()});
     var key = 'T:' + team.toLowerCase(), cur = P.getProperty(key);
-    if (a === 'register' && cur) { var c = JSON.parse(cur); return out({ok:true, epoch:ep, timer:timer_(), now:Date.now(), saved:c}); }
+    var mode = ['std', 'adv', 'adv2'].indexOf(b.mode) >= 0 ? b.mode : '';   // game mode, shown as a coloured dot on the board
+    if (a === 'register' && cur) { var c = JSON.parse(cur); if (mode && c.mode !== mode) { c.mode = mode; P.setProperty(key, JSON.stringify(c)); }
+      return out({ok:true, epoch:ep, timer:timer_(), now:Date.now(), saved:c}); }
     var asked = Math.max(0, Number(b.asked) || 0), first = Math.max(0, Number(b.first) || 0);
     var rec = {team:team, score:Math.max(0, Math.min(5000, Number(b.score) || 0)), asked:asked, first:first,
                second:Math.max(0, Number(b.second) || 0), firstTry:first, secondTry:Math.max(0, Number(b.second) || 0), bestStreak:Math.max(0, Number(b.bestStreak) || 0),
-               cases:Math.max(0, Number(b.cases) || 0), accuracy: asked ? Math.round(first / asked * 100) : 0};
+               cases:Math.max(0, Number(b.cases) || 0), accuracy: asked ? Math.round(first / asked * 100) : 0,
+               mode: mode || (cur ? (JSON.parse(cur).mode || '') : '')};
     P.setProperty(key, JSON.stringify(rec));
     return out({ok:true, epoch:ep, timer:timer_(), now:Date.now(), score:rec.score});
   }
