@@ -15,6 +15,7 @@ body{background:var(--bg);color:var(--ink);font-family:'Space Mono',ui-monospace
 .top b{color:var(--ink);font-size:15px}
 .pill{border:1px solid var(--line);border-radius:999px;padding:5px 11px;background:var(--card);white-space:nowrap}
 #clock.warn{color:var(--bad);border-color:var(--bad)}
+#who{min-width:0;overflow:hidden;text-overflow:ellipsis}
 #logoutBtn{font:inherit;font-size:12px;color:var(--mut);cursor:pointer}
 #logoutBtn.sure{color:#fff;background:var(--bad);border-color:var(--bad)}
 .topR{display:flex;gap:8px;align-items:center}
@@ -56,12 +57,14 @@ input[type=text],select{width:100%;font:inherit;font-size:18px;padding:13px;bord
 .center{text-align:center}.big{font-family:'Fraunces',serif;font-weight:900;font-size:64px;color:var(--acc)}
 .mut{color:var(--mut);font-size:13px;line-height:1.6}
 .hide{display:none!important}
-.modes{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.modes{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:14px}
+.sub{font-size:14px;color:var(--mut);line-height:1.5;margin-bottom:6px}.sub b{color:var(--ink)}
+.more{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px}
 .mode{background:var(--chip);border:2px solid var(--line);border-radius:12px;padding:12px;text-align:left;font-size:13px;line-height:1.45;color:var(--mut)}
 .mode b{display:block;font-family:'Fraunces',serif;font-size:19px;color:var(--ink);margin-bottom:2px}
 .mode.on{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc) inset}
 .mode.on b{color:var(--acc)}
-@media(max-width:520px){.modes{grid-template-columns:1fr}}
+@media(max-width:640px){.modes{grid-template-columns:1fr}}
 a.lnk{color:var(--mut);font-size:12px}
 </style>
 </head>
@@ -80,6 +83,7 @@ a.lnk{color:var(--mut);font-size:12px}
     <div class="modes" id="modes">
       <button class="mode on" data-mode="std"><b>Standard</b>be + V3 in every tense: is, was, has been, had been, are being…</button>
       <button class="mode" data-mode="adv"><b>Advanced</b>Shells around be + V3: could be, could have been, to be, to have been, after being, having been…</button>
+      <button class="mode" data-mode="adv2"><b>Advanced II</b>V2 vs V3 and headlines, impersonal passives (It is expected that…, is said to be…), reduced relatives (the roads closed last week…)</button>
     </div>
     <select id="pick" class="hide"><option value="">Tap to choose your name…</option></select>
     <input type="text" id="name" maxlength="20" placeholder="Your nickname (e.g. Ploy 12)" autocomplete="off">
@@ -102,6 +106,7 @@ a.lnk{color:var(--mut);font-size:12px}
       <div class="steps"><i id="s0"></i><i id="s1"></i><i id="s2"></i></div>
       <div class="src" id="src"></div>
       <div class="sent" id="sent"></div>
+      <div class="sub hide" id="sub"></div>
       <div class="mut" id="gloss"></div>
       <div class="q" id="q"></div>
       <div id="area"></div>
@@ -116,12 +121,14 @@ a.lnk{color:var(--mut);font-size:12px}
     <div class="badge" style="margin:0 auto 12px">🏆</div>
     <h1>All cases <em>closed</em></h1>
     <div class="big" id="doneScore">0</div>
-    <p class="mut">Every case solved. Look at the board for the podium.</p>
+    <p class="mut" id="doneMsg">Every case solved. Look at the board for the podium.</p>
+    <div class="more" id="more"></div>
   </div>
 </div>
 <script src="config.js?v=3"></script>
 <script src="data.js?v=6"></script>
 <script src="data-adv.js?v=2"></script>
+<script src="data-adv2.js?v=3"></script>
 <script>
 const $=id=>document.getElementById(id);
 const KEY='invrep-v1';
@@ -137,7 +144,9 @@ const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(M
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const ALL={}; DETECTIVE.forEach(d=>ALL[d.id]=Object.assign({role:'D'},d)); REPORTER.forEach(r=>ALL[r.id]=Object.assign({role:'R'},r));
 (window.ADV_DETECTIVE||[]).forEach(d=>ALL[d.id]=Object.assign({role:'D',adv:true},d)); (window.ADV_REPORTER||[]).forEach(r=>ALL[r.id]=Object.assign({role:'R',adv:true},r));
-const IDS={std:Object.keys(ALL).filter(k=>!ALL[k].adv), adv:Object.keys(ALL).filter(k=>ALL[k].adv)};
+(window.ADV2_DETECTIVE||[]).forEach(d=>ALL[d.id]=Object.assign({role:'D',adv2:true},d)); (window.ADV2_REPORTER||[]).forEach(r=>ALL[r.id]=Object.assign({role:'R',adv2:true},r));
+const IDS={std:Object.keys(ALL).filter(k=>!ALL[k].adv&&!ALL[k].adv2), adv:Object.keys(ALL).filter(k=>ALL[k].adv), adv2:Object.keys(ALL).filter(k=>ALL[k].adv2)};
+const MODE_NAME={std:'Standard',adv:'Advanced',adv2:'Advanced II'}, MODE_SHORT={std:'',adv:'Adv',adv2:'Adv II'};
 let MODE='std';
 document.querySelectorAll('#modes .mode').forEach(b=>b.onclick=()=>{ MODE=b.dataset.mode; document.querySelectorAll('#modes .mode').forEach(x=>x.classList.toggle('on',x===b)); });
 /* the rule each shell sets for be (Reporter feedback in Advanced mode) */
@@ -151,12 +160,12 @@ function shellRule(sh){ sh=sh||'';
 let S=null;            // persisted state
 let T={expirationMs:0,running:false,skew:0};
 let cur={tries:0,placed:[],pool:[],clean:true,locked:false}; let HINT='';
-function fresh(name,offline,mode){mode=mode||MODE;return {name,offline:!!offline,mode,epoch:'',score:0,asked:0,first:0,second:0,streak:0,bestStreak:0,cases:0,
+function fresh(name,offline,mode){mode=mode||MODE;return {name,offline:!!offline,mode,mode0:mode,epoch:'',score:0,asked:0,first:0,second:0,streak:0,bestStreak:0,cases:0,
   queue:shuffle(IDS[mode]||IDS.std),qi:0,step:0,caseClean:true};}
 function save(){ try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){} }
 function load(){ try{const s=JSON.parse(localStorage.getItem(KEY)); if(s&&s.name&&s.queue&&s.queue.every(id=>ALL[id])) return s;}catch(e){} return null; }
 function show(v){['vJoin','vWait','vPlay','vDone'].forEach(x=>$(x).classList.toggle('hide',x!==v));}
-function hud(){ $('logoutBtn').classList.toggle('hide',!S); if(!S) $('who').textContent='English 4 · Unit 5'; $('score').textContent=S?S.score:0; $('streak').textContent=S?S.streak:0; if(S) $('who').textContent=S.name+(S.mode==='adv'?' · Advanced':'')+(S.offline?' · solo':''); }
+function hud(){ $('logoutBtn').classList.toggle('hide',!S); if(!S) $('who').textContent='English 4 · Unit 5'; $('score').textContent=S?S.score:0; $('streak').textContent=S?S.streak:0; if(S){ const narrow=window.matchMedia&&matchMedia('(max-width:520px)').matches; $('who').textContent=S.name+(S.mode&&S.mode!=='std'?' · '+(narrow?MODE_SHORT[S.mode]:MODE_NAME[S.mode]):'')+(S.offline&&!narrow?' · solo':''); } }
 
 /* ---------- sync ---------- */
 let sending=false, dirty=false;
@@ -164,7 +173,7 @@ function applyTimer(r){
   if(!r) return;
   if(r.timer){ T.expirationMs=r.timer.expirationMs||0; T.running=!!r.timer.running; if(r.now) T.skew=r.now-Date.now(); }
   if(S && !S.offline && r.epoch && S.epoch && String(r.epoch)!==String(S.epoch)){ // teacher pressed Reset
-    const n=S.name, m=S.mode||'std'; S=fresh(n,false,m); S.epoch=String(r.epoch); save(); hud(); api('POST',{action:'register',team:n}).catch(()=>{}); route(); return;
+    const n=S.name, m=S.mode0||S.mode||'std'; S=fresh(n,false,m); S.epoch=String(r.epoch); save(); hud(); api('POST',{action:'register',team:n}).catch(()=>{}); route(); return;
   }
   if(S && r.epoch && !S.epoch){ S.epoch=String(r.epoch); save(); }
 }
@@ -205,7 +214,7 @@ function route(){
     $('waitScore').textContent=over?S.score:'';
     show('vWait'); return;
   }
-  if(S.qi>=S.queue.length){ $('doneScore').textContent=S.score; show('vDone'); return; }
+  if(S.qi>=S.queue.length){ $('doneScore').textContent=S.score; drawMore(); show('vDone'); return; }
   show('vPlay'); render();
 }
 
@@ -217,7 +226,7 @@ function award(ok){
   else { S.streak=0; S.caseClean=false; }
   let bonus=0;
   if(S.step===2){ S.cases++; if(S.caseClean){bonus=5;} }
-  S.score+=pts+bonus; cur.locked=true; save(); hud(); sync();
+  S.score+=pts+bonus; cur.locked=true; S.answered=true; S.tries1=0; save(); hud(); sync();
   return {pts,bonus};
 }
 function feedback(ok,html,res){
@@ -225,16 +234,22 @@ function feedback(ok,html,res){
   $('fb').innerHTML='<div class="fb'+(ok?'':' no')+'"><b>'+(ok?'Correct. ':'Not this time. ')+gain+'</b><br>'+html+'</div>';
 }
 function finishStep(){ $('nextBtn').classList.remove('hide'); $('checkBtn').classList.add('hide'); $('resetBtn').classList.add('hide'); }
-$('nextBtn').onclick=()=>{ S.step++; if(S.step>2){S.step=0;S.qi++;S.caseClean=true;} save(); route(); };
+$('nextBtn').onclick=()=>{ S.answered=false; S.tries1=0; S.step++; if(S.step>2){S.step=0;S.qi++;S.caseClean=true;} save(); route(); };
 
+/* Key positions come from a shuffled deck holding each of the 4 positions twice, so over every 8 questions
+   the key sits in each position equally often; never the same position 3 times running. */
+let POS=[], LASTP=[];
+const run3=a=>a.some((x,i)=>i>1&&x===a[i-1]&&x===a[i-2]);
+function nextPos(){ if(!POS.length){ let d,n=0; do{ d=shuffle([0,1,2,3,0,1,2,3]); n++; }while(n<500 && run3(LASTP.slice(-2).concat(d))); POS=d; }
+  const p=POS.shift(); LASTP.push(p); if(LASTP.length>4) LASTP.shift(); return p; }
 function mc(correct,wrongs,onDone){
-  const opts=shuffle([correct].concat(wrongs));
+  const opts=shuffle(wrongs); opts.splice(Math.min(nextPos(),opts.length),0,correct);
   const area=$('area'); area.innerHTML='<div class="opts"></div>'; const box=area.firstChild;
   opts.forEach(o=>{ const b=document.createElement('button'); b.className='opt'; b.textContent=o;
     b.onclick=()=>{ if(cur.locked||b.disabled) return;
       if(o===correct){ b.classList.add('right'); box.querySelectorAll('.opt').forEach(x=>x.disabled=true); onDone(true); }
       else{ b.classList.add('wrong'); b.disabled=true;
-        if(cur.tries===0){ cur.tries=1; $('fb').innerHTML='<div class="fb no"><b>Not quite.</b> One more try for 5 points.'+(HINT?'<br>'+HINT:'')+'</div>'; }
+        if(cur.tries===0){ cur.tries=1; S.tries1=1; save(); $('fb').innerHTML='<div class="fb no"><b>Not quite.</b> One more try for 5 points.'+(HINT?'<br>'+HINT:'')+'</div>'; }
         else{ box.querySelectorAll('.opt').forEach(x=>{x.disabled=true; if(x.textContent===correct) x.classList.add('right');}); onDone(false); } } };
     box.appendChild(b); });
 }
@@ -256,32 +271,98 @@ function order(blocks,onDone,alts){
   $('checkBtn').onclick=()=>{ if(cur.locked) return;
     const ok=targets.indexOf(norm(cur.placed.map(x=>x.t)))>=0;
     if(ok){ $('line').classList.add('ok'); onDone(true); draw(); $('line').classList.add('ok'); }
-    else if(cur.tries===0){ cur.tries=1; $('line').classList.add('no'); $('fb').innerHTML='<div class="fb no"><b>Not quite.</b> Reset, or tap a block to move it. One more try for 5 points.'+(HINT?'<br>'+HINT:'')+'</div>'; }
+    else if(cur.tries===0){ cur.tries=1; S.tries1=1; save(); $('line').classList.add('no'); $('fb').innerHTML='<div class="fb no"><b>Not quite.</b> Reset, or tap a block to move it. One more try for 5 points.'+(HINT?'<br>'+HINT:'')+'</div>'; }
     else{ onDone(false); draw(); $('line').classList.add('no'); } };
 }
-function pickBlock(parts,idx,onDone,alts){ alts=alts||[];
+function pickBlock(parts,idx,onDone,alts,hint){ alts=alts||[];
   const area=$('area'); area.innerHTML='<div class="blocks"></div>'; const box=area.firstChild;
   parts.forEach((p,i)=>{ const b=document.createElement('button'); b.className='blk'; b.textContent=p.replace(/[.]$/,'');
     b.onclick=()=>{ if(cur.locked||b.disabled) return;
       if(i===idx||alts.indexOf(i)>=0){ b.classList.add('right'); onDone(true); }
       else{ b.classList.add('wrong'); b.disabled=true;
-        if(cur.tries===0){ cur.tries=1; $('fb').innerHTML='<div class="fb no"><b>Not quite.</b> Find the verb first. The object usually comes straight after it. One more try for 5 points.</div>'; }
+        if(cur.tries===0){ cur.tries=1; S.tries1=1; save(); $('fb').innerHTML='<div class="fb no"><b>Not quite.</b> '+(hint||'Find the verb first. The object usually comes straight after it.')+' One more try for 5 points.</div>'; }
         else{ box.children[idx].classList.add('right'); onDone(false); } } };
     box.appendChild(b); });
 }
 function fillGap(tpl,be){ const parts=be?be.split(' / '):[]; let k=0;
   return esc(tpl).replace(/____/g,()=>'<span class="gap">'+(be?esc(parts[Math.min(k++,parts.length-1)]):'&nbsp;')+'</span>'); }
 
-function glossFor(it){ const txt=(it.gap||'')+' '+(it.parts||[]).join(' ')+' '+(it.active||[]).join(' '); const g=[]; for(const k in (window.GLOSS||{})) if(txt.toLowerCase().indexOf(k)>=0) g.push(GLOSS[k]); $('gloss').textContent=g.join(' · '); }
+function glossFor(it){ const txt=(it.gap||'')+' '+(it.frame||'')+' '+(it.then||'')+' '+(it.parts||[]).join(' ')+' '+(it.active||[]).join(' '); const g=[]; for(const k in (window.GLOSS||{})) if(txt.toLowerCase().indexOf(k)>=0) g.push(GLOSS[k]); $('gloss').textContent=g.join(' · '); }
+/* ---------- Advanced II (data-adv2.js): V2/V3 and headlines · impersonal passives · reduced relatives ----------
+   Same three tasks and scoring; every prompt, frame and feedback line comes from the case, so no Standard/Advanced
+   wording ("Which form of be…", "It becomes the subject…", "keep the tense") is shown where it does not fit. */
+const SETN={A:'Set A · V2 vs V3 and headlines',B:'Set B · impersonal passives',C:'Set C · reduced relatives'};
+const H2={
+ A:{t1:'Check the job of the word, not its spelling: is it a tense (V2) or does it follow be / have (V3)? Does the be-form agree with the subject and the time words?',
+    d3:'Doer + verb + receiver. Start with the block that has a capital letter.', r3:'Receiver first, then the verb group from Task 2.'},
+ B:{t1:'Is the subject one thing or more? Is the action at the same time as the report, in progress, earlier, or still to come? Does the subject do it or receive it?',
+    d3:'Source + reporting verb + that + what they say.', r3:'The new subject first, then the passive reporting verb, then the rest.'},
+ C:{t1:'Count the verbs: does the sentence already have its main verb? Does the noun do the action or receive it? Is it finished, still going on, or still to happen?',
+    d3:'Doer + verb + the noun + the rest of the short clause.', r3:'The noun + the short clause + the main verb of the second sentence.'}};
+function tapHint(q){ return /reporting verb/.test(q)?'The reporting verb is the verb of saying, thinking or recommending.':/doer/.test(q)?'The doer is the person or group that does the action: look in front of the verb.':/subject of the report/.test(q)?'Look after the reporting verb: who or what is the report about?':'Find the verb first. The object usually comes straight after it.'; }
+function renderAdv2(it,st,done){
+  const set=it.set||'A', head=SETN[set]||'';
+  const sub=html=>{ $('sub').innerHTML=html; $('sub').classList.toggle('hide',!html); };
+  const nextLine=it.then?'Next sentence: <b>'+esc(it.then)+'</b>':'';
+  if(it.role==='D'){
+    $('rIcon').textContent='🕵️'; $('rKick').textContent='Role 1 · Detective · task '+(st+1)+' of 3'; $('rTitle').textContent=set==='B'?'Who says so?':'Who did it?';
+    $('src').textContent='CASE FILE · '+head+' · '+it.src+(st>0?' · '+it.shell:'');
+    const full=it.gap.replace('____',it.be);
+    if(st===0){
+      $('sent').innerHTML=fillGap(it.gap,''); $('q').textContent='Task 1 · '+it.q1; HINT=it.h1||H2[set].t1;
+      mc(it.be,it.beWrong,ok=>{ $('sent').innerHTML=fillGap(it.gap,it.be); $('src').textContent='CASE FILE · '+head+' · '+it.src+' · '+it.shell; done(ok,'<b>'+esc(it.be)+'</b> · '+esc(it.shell)+'. '+esc(it.why)); });
+    }else if(st===1){
+      $('sent').innerHTML=fillGap(it.gap,it.be); $('q').textContent='Task 2 · '+it.q2;
+      HINT=it.h2||(set==='B'?'The source is the person or group who says, thinks or expects it, not the thing the report is about.':'The doer is not the thing that receives the action.');
+      mc(it.doer,it.doerWrong,ok=>done(ok,(set==='B'?'Source: ':'Doer: ')+'<b>'+esc(it.doer)+'</b>. '+esc(it.fb2||(set==='B'?'This is the most likely source, not a fact from the report. An impersonal passive hides who says, thinks or expects it.':'This is the most likely doer, not a fact from the report. The writer left the doer out because it is obvious, unknown or not important.'))));
+    }else{
+      $('sent').textContent=full; $('q').textContent='Task 3 · '+(it.t3||'Rebuild the sentence in the active.')+' Start with the block that has a capital letter.'; HINT=it.h3||H2[set].d3;
+      order(it.active,ok=>done(ok,'Active: <b>'+esc(it.active.join(' '))+'</b>'));
+    }
+  }else{
+    $('rIcon').textContent='📰'; $('rKick').textContent='Role 2 · Reporter · task '+(st+1)+' of 3'; $('rTitle').textContent=set==='C'?'Join it up with a short clause':'Write it up in the passive';
+    $('src').textContent='NEWS DESK · '+head+' · '+it.src+(st>1?' · '+it.shell:'');
+    const act=it.parts.join(' ');
+    if(st===0){
+      $('sent').textContent=''; $('q').textContent='Task 1 · '+it.q1;
+      pickBlock(it.parts,it.obj,ok=>{ $('sent').textContent=act; done(ok,'<b>'+esc(it.parts[it.obj].replace(/[.,]$/,''))+'</b>. '+esc(it.fb1||'It becomes the subject of the passive sentence.')); },it.objAlt,tapHint(it.q1));
+    }else if(st===1){
+      if(it.frame){ $('sent').innerHTML=fillGap(it.frame,''); sub('Active: <b>'+esc(act)+'</b>'+(nextLine?'<br>'+nextLine:'')); }
+      else { $('sent').textContent=act; sub(nextLine); }
+      $('q').textContent='Task 2 · '+it.q2; HINT=it.h1||H2[set].t1;
+      mc(it.vg,it.vgWrong,ok=>{ if(it.frame) $('sent').innerHTML=fillGap(it.frame,it.vg); $('src').textContent='NEWS DESK · '+head+' · '+it.src+' · '+it.shell; done(ok,'<b>'+esc(it.vg)+'</b>'+(/[.]$/.test(it.vg)?' ':'. ')+esc(it.why)); });
+    }else{
+      $('sent').textContent=act; sub(nextLine);
+      const drop=it.drop?' '+it.drop:(it.dropAgent?(set==='B'?' Leave out the source.':' The doer is obvious or unknown, so the reporter drops it.'):'');
+      $('q').textContent='Task 3 · '+(it.t3||'Build the passive version.')+drop+' Start with the block that has a capital letter.'; HINT=it.h3||H2[set].r3;
+      order(it.passive,ok=>done(ok,(set==='C'?'Joined: ':'Passive: ')+'<b>'+esc(it.passive.join(' '))+'</b>'),it.alt);
+    }
+  }
+}
+/* "All cases closed": keep going with a mode not played yet. The score keeps adding up on the board. */
+function drawMore(){
+  const left=['std','adv','adv2'].filter(m=>IDS[m].length && !IDS[m].every(id=>S.queue.indexOf(id)>=0));
+  $('doneMsg').textContent=left.length?'Every case solved. Keep going with another set: your score keeps adding up'+(S.offline?'.':' on the board.'):'Every case solved. Look at the board for the podium.';
+  const box=$('more'); box.innerHTML='';
+  left.forEach(m=>{ const b=document.createElement('button'); b.className='btn'+(m==='adv2'?'':' ghost'); b.textContent='Keep going: '+MODE_NAME[m]+' ('+IDS[m].length+' cases)';
+    b.onclick=()=>{ S.queue=S.queue.concat(shuffle(IDS[m])); S.mode=m; S.step=0; S.caseClean=true; save(); route(); window.scrollTo(0,0); }; box.appendChild(b); });
+}
+
 function render(){
   const it=ALL[S.queue[S.qi]], st=S.step;
-  cur={tries:0,placed:[],pool:[],locked:false};
+  cur={tries:S.tries1?1:0,placed:[],pool:[],locked:false};
   document.body.classList.toggle('rep',it.role==='R');
   HINT=''; glossFor(it);
   $('fb').innerHTML=''; ['nextBtn','checkBtn','resetBtn'].forEach(x=>$(x).classList.add('hide'));
   [0,1,2].forEach(i=>$('s'+i).className=i<st?'done':i===st?'on':'');
   $('caseNo').textContent=S.qi+1; $('caseTot').textContent=S.queue.length;
   const done=(ok,html)=>{ const res=award(ok); feedback(ok,html,res); finishStep(); };
+  $('sub').classList.add('hide'); $('sub').innerHTML='';
+  if(it.adv2) renderAdv2(it,st,done); else renderClassic(it,st,done);
+  if(S.answered){ cur.locked=true; $('area').querySelectorAll('button').forEach(b=>b.disabled=true); $('fb').innerHTML='<div class="fb"><b>Already answered.</b> Your points for this task are saved. Tap Next.</div>'; finishStep(); }
+  else if(cur.tries) $('fb').innerHTML='<div class="fb no"><b>Second try.</b> One more try for 5 points.'+(HINT?'<br>'+HINT:'')+'</div>';
+}
+function renderClassic(it,st,done){
   if(it.role==='D'){
     $('rIcon').textContent='🕵️'; $('rKick').textContent='Role 1 · Detective · task '+(st+1)+' of 3'; $('rTitle').textContent='Who did it?';
     const lab=it.adv?'shell: '+it.shell:it.tense+' passive';

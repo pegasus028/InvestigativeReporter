@@ -11,3 +11,14 @@ preposition / verb + being, having been, is / was being, had been, used to be an
 Detective Task 1 asks for the form of be after the shell; Reporter Task 2 asks for the whole passive verb group.
 Scores go to the same board (no backend change).
 
+
+## Advanced II mode (23 Nov 2026)
+Third button on the sign-in screen. 50 cases in `data-adv2.js` (25 Detective + 25 Reporter) built on the deck
+"E4-U5 V2 vs V3, impersonal passives and reduced relatives": Set A V2 vs V3 and headlines, Set B impersonal passives
+(It is expected that… / is said to be… / There are thought to be…), Set C reduced relatives (the roads closed last week…).
+Same three tasks and scoring; every prompt, the Reporter frame sentence, the Set C "Next sentence" and the feedback come from each case.
+Also new for every mode: the key's position is drawn from a balanced deck (each of the 4 positions equally often, never 3 in a row),
+and "All cases closed" offers "Keep going" into a mode not played yet (the score keeps adding up on the board; backend cap 5000).
+
+Checks: `node tools/check-adv2.js` (bank rules, longest-key share) · `node tools/e2e.js [shots]` (all modes, mocked backend) ·
+`node tools/e2e-board.js [shots]` (teacher board + 3 students in 3 modes against an in-memory copy of Code.gs).
