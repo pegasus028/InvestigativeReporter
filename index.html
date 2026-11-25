@@ -97,6 +97,8 @@ a.lnk{color:var(--mut);font-size:12px}
     <h1 id="waitTitle">Waiting for the round to start</h1>
     <p class="mut" style="margin-top:10px" id="waitMsg">Watch the board. Your first case opens when T.Chris starts the timer.</p>
     <div class="big" id="waitScore"></div>
+    <div class="more" id="waitMore"><button class="btn ghost" id="waitSoloBtn">Solo practice instead</button><button class="btn ghost" id="waitOutBtn">Change name or mode</button></div>
+    <p class="mut" style="margin-top:8px;font-size:12px">Signed in as <b id="waitWho"></b> on this device.</p>
   </div>
 
   <!-- play -->
@@ -212,6 +214,7 @@ function route(){
     $('waitTitle').innerHTML=over?'Time’s <em>up</em>':'Waiting for the round to start';
     $('waitMsg').textContent=over?'Pens down. Look at the board for the podium.':'Watch the board. Your first case opens when T.Chris starts the timer.';
     $('waitScore').textContent=over?S.score:'';
+    $('waitWho').textContent=S.name+(S.mode&&S.mode!=='std'?' · '+MODE_NAME[S.mode]:'');
     show('vWait'); return;
   }
   if(S.qi>=S.queue.length){ $('doneScore').textContent=S.score; drawMore(); show('vDone'); return; }
@@ -423,13 +426,20 @@ $('logoutBtn').onclick=()=>{
   const b=$('logoutBtn');
   if(!logoutArmed){ b.classList.add('sure'); b.innerHTML='Sure?<span class="lw"> Tap again</span>'; logoutArmed=setTimeout(()=>{ logoutArmed=null; b.classList.remove('sure'); b.innerHTML=LOGOUT_HTML; },4000); return; }
   clearTimeout(logoutArmed); logoutArmed=null; b.classList.remove('sure'); b.innerHTML=LOGOUT_HTML;
+  logout();
+};
+/* Waiting screen exits (a phone that joined the board in class reopens straight onto this screen):
+   switch to Solo practice with the same name and mode, or go back to the sign-in screen. */
+$('waitSoloBtn').onclick=()=>{ if(!S) return; S=fresh(S.name,true,S.mode0||S.mode||'std'); save(); route(); window.scrollTo(0,0); };
+$('waitOutBtn').onclick=()=>logout();
+function logout(){
   try{ localStorage.removeItem(KEY); }catch(e){}
   S=null; document.body.classList.remove('rep'); $('fb').innerHTML='';
   $('clock').textContent='--:--'; $('clock').className='pill';
   $('joinMsg').textContent=''; $('joinBtn').disabled=false; $('name').value='';
   if(HAS_ROSTER) $('pick').value=''; else loadRoster();
   hud(); show('vJoin'); window.scrollTo(0,0);
-};
+}
 let HAS_ROSTER=false;
 async function loadRoster(){
   if(!apiReady()) return;
