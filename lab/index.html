@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Passive Lab · English 4</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;900&family=Nunito+Sans:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#f4f6f8;--card:#fff;--ink:#16181c;--mut:#5e6e78;--navy:#14324a;--line:#d5dce2;
+--g:#2e9b3e;--gf:#e7f8e5;--gt:#0a3c14;--b:#1e88c8;--bf:#ddf3fc;--bt:#0b4a66;--r:#c62828;--rf:#fdecec;--rt:#8e1b1b;
+--gold:#c9a000;--goldf:#fff6cc;--pu:#7b61d9;--puf:#efeafe;--am:#e08a00;--amf:#fff1dc;--te:#1d9e75;--tef:#e1f5ee;--sl:#5e6e78;--slf:#eef1f4}
+body{background:var(--bg);color:var(--ink);font-family:'Nunito Sans',system-ui,sans-serif;font-size:18px;line-height:1.45;-webkit-tap-highlight-color:transparent}
+.wrap{max-width:880px;margin:0 auto;padding:16px 16px 60px}
+header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+h1{font-family:'Fraunces',serif;font-weight:900;font-size:30px;color:var(--navy);line-height:1.1}
+h1 small{display:block;font-family:'Nunito Sans';font-weight:700;font-size:15px;color:var(--mut)}
+h2{font-family:'Fraunces',serif;font-weight:900;font-size:24px;color:var(--navy);margin-bottom:6px}
+.home{border:2px solid var(--line);background:#fff;border-radius:999px;padding:8px 16px;font:inherit;font-weight:800;font-size:15px;color:var(--navy);cursor:pointer}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.tile{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;cursor:pointer;text-align:left;font:inherit;color:inherit;box-shadow:0 2px 6px rgba(0,0,0,.06);transition:transform .15s}
+.tile:active{transform:scale(.98)}
+.tile b{display:block;font-family:'Fraunces',serif;font-size:21px;color:var(--navy);margin-bottom:4px}
+.tile span{color:var(--mut);font-size:16px}
+.tile .done{float:right;color:var(--g);font-weight:800;font-size:15px}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:14px;box-shadow:0 2px 6px rgba(0,0,0,.05)}
+.lead{color:var(--mut);margin-bottom:12px}
+.nav{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:10px}
+.btn{border:2px solid var(--navy);background:var(--navy);color:#fff;border-radius:12px;padding:11px 18px;font:inherit;font-weight:800;cursor:pointer;min-height:48px}
+.btn.ghost{background:#fff;color:var(--navy)}
+.btn:disabled{opacity:.35;cursor:default}
+.count{color:var(--mut);font-weight:700;font-size:15px}
+.row{display:flex;flex-wrap:wrap;align-items:center;gap:10px;min-height:76px;padding:6px 0}
+.rc{border:3px solid var(--line);border-radius:12px;padding:12px 16px;font-weight:800;background:#fff;cursor:pointer;font:inherit;font-weight:800;font-size:19px;transition:box-shadow .2s}
+.rc.doer{background:var(--gf);border-color:var(--g);color:var(--gt)}
+.rc.rec{background:var(--bf);border-color:var(--b);color:var(--bt)}
+.rc.verb{background:#fff;border-color:#9aa5ae}
+.rc.rest{background:var(--slf);border-color:var(--line);color:var(--mut);cursor:default}
+.rc.by{background:var(--goldf);border-color:var(--gold);color:#5a3e00;padding:12px 10px}
+.rc.opt{opacity:.55;border-style:dashed}
+.rc.hit{box-shadow:0 0 0 5px rgba(255,193,7,.75)}
+.arr{font-size:24px;color:var(--g);font-weight:800}
+.hl{background:#ffff00;padding:0 2px}
+.msg{border-radius:12px;padding:12px 14px;margin-top:12px;font-weight:700}
+.msg.ok{background:var(--gf);color:var(--gt);border:2px solid var(--g)}
+.msg.no{background:var(--rf);color:var(--rt);border:2px solid var(--r)}
+.msg.info{background:var(--goldf);color:#5a3e00;border:2px solid var(--gold)}
+.shake{animation:sh .35s}
+@keyframes sh{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+.pop{animation:pp .35s}
+@keyframes pp{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+.sent{font-family:'Fraunces',serif;font-weight:600;font-size:22px;line-height:1.5;margin:6px 0 10px}
+.gap{display:inline-block;min-width:90px;border-bottom:3px solid var(--navy);text-align:center;padding:0 6px}
+.gap .chip{display:inline-block;border-radius:8px;padding:0 8px;margin:0 2px;font-family:'Nunito Sans';font-weight:800;font-size:19px}
+.q{font-weight:800;margin:14px 0 8px;color:var(--navy)}
+.q .tool{display:inline-block;background:var(--slf);border:1px solid var(--line);border-radius:999px;padding:1px 10px;font-size:14px;margin-right:6px;color:var(--mut)}
+.opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+.o{border:2px solid var(--line);background:#fff;border-radius:12px;padding:12px;font:inherit;font-weight:800;cursor:pointer;min-height:52px;color:var(--ink)}
+.o.k-be{background:var(--puf);border-color:var(--pu);color:#3c2a8a}
+.o.k-been{background:var(--amf);border-color:var(--am);color:#7a4300}
+.o.k-being{background:var(--tef);border-color:var(--te);color:#085041}
+.o.k-do{background:var(--gf);border-color:var(--g);color:var(--gt)}
+.o.k-get{background:var(--bf);border-color:var(--b);color:var(--bt)}
+.o.right{background:var(--gf);border-color:var(--g);color:var(--gt)}
+.o.wrong{background:var(--rf);border-color:var(--r);color:var(--rt);text-decoration:line-through}
+.o:disabled{cursor:default}
+.bricks{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:10px 0}
+.bk{border-radius:10px;padding:8px;text-align:center;font-weight:800;font-size:16px}
+.bk .h{background:var(--slf);border:2px solid var(--sl);border-radius:8px;padding:6px;margin-bottom:4px;color:#2b3a45}
+.bk .t{font-size:18px;line-height:1}
+.bk .b{border-radius:8px;padding:6px;margin-top:4px}
+@media(max-width:600px){.bricks{grid-template-columns:repeat(2,1fr)}.sent{font-size:20px}h1{font-size:25px}}
+.u{border-bottom:3px solid var(--navy);cursor:pointer;padding:8px 4px;border-radius:4px;line-height:2.1}
+.u2{border-bottom:3px solid var(--navy);padding:0 2px}
+.u.sel{background:var(--goldf)}
+.u.okd{border-color:var(--g);background:var(--gf)}
+.u.err{border-color:var(--r);background:var(--rf)}
+.u.nv{border-color:#9aa5ae;background:var(--slf)}
+.pn{font-family:'Nunito Sans';font-weight:800;font-size:16px;color:var(--navy)}
+.scan{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.badges{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:8px 0}
+.bd{border:2px solid var(--te);background:var(--tef);color:#085041;border-radius:10px;padding:8px;text-align:center;font-weight:800;font-size:15px}
+.bd small{display:block;color:var(--mut);font-weight:700;font-size:13px}
+.optrow{border:1px solid var(--line);border-radius:12px;padding:12px;margin:10px 0;background:#fff}
+.optrow.good{border:3px solid var(--b)}
+.optrow .st{font-size:18px;margin-bottom:8px}
+.mini{display:flex;flex-wrap:wrap;gap:6px}
+.mini .o{min-height:48px;padding:6px 10px;font-size:15px}
+.home{min-height:48px}
+.sock{display:flex;flex-direction:column;align-items:center;gap:10px}
+.verbchip{font-family:'Fraunces',serif;font-size:34px;font-weight:900;color:var(--navy);padding:14px 30px;border:3px solid #9aa5ae;border-radius:14px;background:#fff;position:relative}
+.bar{height:10px;border-radius:5px;background:var(--line);overflow:hidden;margin:8px 0}
+.bar i{display:block;height:100%;background:var(--g);transition:width .4s}
+footer{margin-top:24px;color:var(--mut);font-size:14px;text-align:center}
+.legend{font-size:14px;color:var(--mut);font-weight:700}
+.sr{position:absolute;left:-9999px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header><h1>Passive Lab<small>Three tools for every passive question · English 4 Unit 5</small></h1><button class="home" id="homeBtn" hidden>← All labs</button></header>
+<main id="app"></main>
+<footer>EN32102 English 4 - Unit 5 - T.Chris</footer>
+</div>
+<script>
+// ---------- data ----------
+const FLIP = [
+  { doer: 'the smiling guard', verb: 'locked', rec: 'the school gates', rest: '', pas: ['were', 'locked'], by: 'yes', note: 'V2 alone → was / were + V3. Gates = more than one → were.' },
+  { doer: 'the M6 girls', verb: 'are decorating', rec: 'the stage', rest: 'for the school play', pas: ['is being', 'decorated'], by: 'yes', note: 'be + -ing (happening now) → same time: is being + V3.' },
+  { doer: 'the librarian', verb: 'has labelled', rec: 'all the new books', rest: '', pas: ['have been', 'labelled'], by: 'yes', note: 'has + V3 → have been + V3. Books = more than one → have.' },
+  { doer: 'the art club', verb: 'will design', rec: 'the posters', rest: '', pas: ['will be', 'designed'], by: 'yes', note: 'will + verb → will be + V3.' },
+  { doer: 'every student', verb: 'should sign', rec: 'the permission form', rest: 'before the trip', pas: ['should be', 'signed'], by: 'optional', note: 'The modal stays: should be + V3. The doer is obvious, so "by every student" can go.' },
+  { doer: 'the student president', verb: 'had welcomed', rec: 'the parents', rest: 'before the concert began', pas: ['had been', 'welcomed'], by: 'yes', note: 'had + V3 → had been + V3. "began" stays: it is in the time clause.' },
+];
+const BLANK = [
+  { s: 'The science fair results will ___ on Friday.', v: 'announce', who: 'The science fair results', role: 'gets', bq: 'will', bo: ['be', 'been', 'being', 'is'], bk: 'be', vo: ['announced', 'announce', 'announcing'], vk: 'announced',
+    why: 'The results get the action. After will → be + V3.' },
+  { s: 'The music room has ___ for the open day.', v: 'prepare', who: 'The music room', role: 'gets', bq: 'has', bo: ['be', 'been', 'being', 'was'], bk: 'been', vo: ['prepared', 'prepare', 'preparing'], vk: 'prepared',
+    why: 'The room gets prepared. After has → been + V3.' },
+  { s: 'My little sister does not enjoy ___ about her handwriting.', v: 'tease', who: 'My little sister', role: 'gets', bq: 'enjoys', bo: ['be', 'been', 'being', 'is'], bk: 'being', vo: ['teased', 'tease', 'teasing'], vk: 'teased',
+    why: 'My sister gets the teasing. After enjoy → being + V3.' },
+  { s: 'The old computers should ___ last year.', v: 'replace', who: 'The old computers', role: 'gets', bq: 'should', bt: 'The word before the gap is should, and the time is earlier (last year). Which brick?', bo: ['be', 'have been', 'being', 'been'], bk: 'have been', vo: ['replaced', 'replace', 'replacing'], vk: 'replaced',
+    why: 'The computers get replaced. should + an earlier time (last year) → should have been + V3.' },
+  { s: 'Look! The school bus ___ right now.', v: 'wash', who: 'The school bus', role: 'gets', bq: 'no helper', bt: 'No helper before the gap. Clue: right now. Which brick?', bo: ['is', 'is being', 'has been', 'be'], bk: 'is being', vo: ['washed', 'wash', 'washing'], vk: 'washed',
+    why: 'The bus gets washed, and it is happening now → is being + V3.' },
+  { s: 'The trophies ___ once a year.', v: 'polish', who: 'The trophies', role: 'gets', bq: 'no helper', bt: 'No helper before the gap. Clue: once a year. Which brick?', bo: ['is', 'are', 'been', 'being'], bk: 'are', vo: ['polished', 'polish', 'polishing'], vk: 'polished',
+    why: 'Trophies get polished. Once a year = present simple; trophies = more than one → are + V3.' },
+  { s: 'The lab coats need to ___ before Monday.', v: 'iron', who: 'The lab coats', role: 'gets', bq: 'to', bo: ['be', 'been', 'being', 'are'], bk: 'be', vo: ['ironed', 'iron', 'ironing'], vk: 'ironed',
+    why: 'The coats get ironed. After to → be + V3.' },
+  { s: 'The new timetable ___ our homework last term.', v: 'reduce', who: 'The new timetable', role: 'does', ao: ['was reduced', 'reduced', 'been reduced', 'reducing'], ak: 'reduced',
+    why: 'A thing can be a doer: the timetable did the reducing → active. Clue: an object (our homework) follows.' },
+  { s: 'The parcel for the library ___ late yesterday.', v: 'arrive', who: 'The parcel', role: 'does', ao: ['was arrived', 'arrived', 'been arrived', 'arriving'], ak: 'arrived',
+    why: 'Arrive has no socket for a receiver, so it is never passive: arrived.' },
+  { s: 'The cupcakes ___ by the cooking club last week were delicious.', v: 'bake', who: 'The cupcakes', role: 'gets', sticker: 'were', ao: ['baking', 'were baked', 'baked', 'bake'], ak: 'baked',
+    why: 'The main verb (were) is already there, so the gap is a sticker on the noun. Cupcakes get baked → V3.' },
+  { s: 'The girls ___ the cupcake stall raised 5,000 baht.', v: 'run', who: 'The girls', role: 'does', sticker: 'raised', ao: ['ran', 'running', 'were run', 'run'], ak: 'running',
+    why: 'The main verb (raised) is already there, so the gap is a sticker on the noun. The girls run the stall → -ing.' },
+];
+const SOCK = { yes: ['lock', 'paint', 'clean', 'invite', 'welcome', 'design', 'praise', 'iron'], no: ['happen', 'arrive', 'belong', 'fall', 'seem', 'remain', 'exist', 'die'] };
+const COUNT = [
+  { s: 'The list of their names ___ put up on the notice board.', nouns: ['list', 'names'], head: 'list', opts: ['was', 'were'], key: 'was' },
+  { s: 'The keys to the music room ___ stored in the office.', nouns: ['keys', 'room'], head: 'keys', opts: ['is', 'are'], key: 'are' },
+  { s: 'Each of the girls ___ awarded a medal.', nouns: ['each', 'girls'], head: 'each', opts: ['was', 'were'], key: 'was' },
+  { s: 'The photos from the sports day ___ posted online.', nouns: ['photos', 'day'], head: 'photos', opts: ['was', 'were'], key: 'were' },
+];
+const VERD = ['Fine', 'Socket', 'Roles', 'Brick', 'Count', 'When'];
+const ERR = [
+  { parts: ['Since Monday, every corridor ', '[has looked]', ' brighter because of ', '[the posters]', ' that ', '[the art club]', ' made, and all of them ', '[were drew]', ' by hand.'],
+    v: ['Fine', 'Not a verb', 'Not a verb', 'Brick'], key: 4, fix: ['were drawn', 'was drawn', 'were drawing'], fk: 'were drawn',
+    why: ['Look has no object here, it is active, and the time fits.', 'Not a verb: check it last. It is fine.', 'Not a verb: check it last. It is fine.', 'Brick: after be, only the V3 fits. Drew is V2.'] },
+  { parts: ['On Monday the best readers ', '[were congratulated]', ' by the director, and the list of their names ', '[were put]', ' up on ', '[the notice board]', ' next to ', '[the canteen]', '.'],
+    v: ['Fine', 'Count', 'Not a verb', 'Not a verb'], key: 2, fix: ['was put', 'were putting', 'was putted'], fk: 'was put',
+    why: ['The readers get the congratulations: be + V3 is right.', 'Count badge: the main noun is the list (one thing), not names → was.', 'Not a verb: check it last. It is fine.', 'Not a verb: check it last. It is fine.'] },
+  { parts: ['Last month the student council ', '[was planned]', ' a charity fair, and every club ', '[was invited]', ' to run a stall, so on the day the hall ', '[was full of]', ' girls ', '[selling]', ' snacks.'],
+    v: ['Roles', 'Fine', 'Fine', 'Fine'], key: 1, fix: ['planned', 'were planned', 'had been planned'], fk: 'planned',
+    why: ['Role cards: the council does the planning, and an object (a charity fair) follows → active.', 'Every club gets the invitation: be + V3 is right.', 'be + an adjective (full): fine.', 'A sticker after a noun: the girls do the selling → -ing. Fine.'] },
+  { parts: ['The blue umbrella ', '[found in the canteen]', ' ', '[is belonged]', ' to the new science teacher, so it ', '[was returned]', ' to her ', '[after lunch]', '.'],
+    v: ['Fine', 'Socket', 'Fine', 'Not a verb'], key: 2, fix: ['belongs', 'is belonging', 'was belonged'], fk: 'belongs',
+    why: ['A sticker after a noun: the umbrella gets found → V3. Fine.', 'Socket: belong has no socket for a receiver, so it is never passive.', 'The umbrella gets returned: be + V3 is right.', 'Not a verb: check it last. It is fine.'] },
+  { parts: ['This month the choir ', '[is rehearsing]', ' in ', '[the music room]', ' because the school hall ', '[is redecorating]', ' and cannot be used until the work ', '[is finished]', '.'],
+    v: ['Fine', 'Not a verb', ['Roles', 'Brick'], 'Fine'], key: 3, fix: ['is being redecorated', 'has redecorated', 'is redecorating itself'], fk: 'is being redecorated',
+    why: ['The choir does the rehearsing: active is right.', 'Not a verb: check it last. It is fine.', 'Role cards: the hall gets the action, so it needs be + V3. Happening now → is being redecorated.', 'The work gets finished: be + V3 is right.'] },
+  { parts: ['The guard ', '[says]', ' he saw nobody ', '[near the office]', ', but the missing trophy is thought ', '[to be lost]', ' during the sports day ', '[last Friday]', '.'],
+    v: ['Fine', 'Not a verb', ['When', 'Brick'], 'Not a verb'], key: 3, fix: ['to have been lost', 'to have lost', 'to be losing'], fk: 'to have been lost',
+    why: ['The guard does the saying: active, and the time fits.', 'Not a verb: check it last. It is fine.', 'When badge: last Friday is earlier than now → to have been + V3.', 'Not a verb: a time clue. It is fine.'] },
+];
+const BADGES = ['who', 'did what', 'to whom', 'when / how strong'];
+const SAME = [
+  { act: 'As soon as night fell, the smiling guard locked the school gates.', vals: ['the smiling guard', 'lock', 'the school gates', 'past'],
+    opts: ['As soon as night was fallen, the smiling guard locked the school gates.', 'As soon as night fell, the smiling guard was locked by the school gates.', 'As soon as night fell, the school gates had been locked by the smiling guard.', 'As soon as night fell, the school gates were locked by the smiling guard.'],
+    ch: [['did what', 'broken'], ['who', 'to whom'], ['when / how strong'], []],
+    why: ['The passive is on the wrong verb: fell is in the time clause, and fall has no socket.', 'The roles are swapped: the gates cannot lock the guard.', 'had been locked = before night fell: the time changes.', 'Same who, did what, to whom and when.'] },
+  { act: 'The M6 girls are decorating the stage for the school play.', vals: ['the M6 girls', 'decorate', 'the stage', 'happening now'],
+    opts: ['The stage is being decorated for the school play by the M6 girls.', 'The stage is decorating for the school play by the M6 girls.', 'The stage was being decorated for the school play by the M6 girls.', 'The stage has been decorated for the school play by the M6 girls.'],
+    ch: [[], ['did what', 'who', 'broken'], ['when / how strong'], ['when / how strong']],
+    why: ['Same who, did what, to whom and when.', 'Not passive: now the stage is decorating something.', 'was being = in the past, not now.', 'has been = finished, not happening now.'] },
+  { act: 'Every student should sign the permission form before the trip.', vals: ['every student', 'sign', 'the permission form', 'should (advice)'],
+    opts: ['Every student should be signed the permission form before the trip.', 'The permission form should be signed before the trip.', 'The permission form must be signed before the trip.', 'The permission form should have been signed before the trip.'],
+    ch: [['who', 'to whom'], [], ['when / how strong'], ['when / how strong']],
+    why: ['Now the students receive the action: the roles changed.', 'Same story. The doer (every student) is obvious, so it can be left out.', 'should (advice) → must (a rule): how sure changes.', 'should have been = the past, and it did not happen.'] },
+  { act: 'Before the concert began, the student president had welcomed all the parents.', vals: ['the student president', 'welcome', 'all the parents', 'finished before'],
+    opts: ['Before the concert began, the student president had been welcomed by all the parents.', 'Before the concert began, all the parents were being welcomed by the student president.', 'Before the concert began, all the parents had been welcomed by the student president.', 'Before the concert began, all the parents had welcomed by the student president.'],
+    ch: [['who', 'to whom'], ['when / how strong'], [], ['did what', 'who', 'broken']],
+    why: ['The roles are swapped.', 'were being = in progress, not finished before.', 'Same who, did what, to whom and when.', 'No been: now it says the parents welcomed someone.'] },
+  { act: 'The new students like it when the teacher praises them in class.', vals: ['the teacher', 'praise', 'the new students', 'now (like)'],
+    opts: ['The new students like the teacher being praised in class.', 'The new students liked being praised by the teacher in class.', 'The new students like praising the teacher in class.', 'The new students like being praised by the teacher in class.'],
+    ch: [['to whom'], ['when / how strong'], ['who', 'to whom'], []],
+    why: ['Now the teacher is the one who is praised.', 'like → liked: the time changes.', 'Now the students do the praising.', 'Same who, did what, to whom and when.'] },
+];
+
+// ---------- helpers ----------
+const $ = s => document.querySelector(s);
+const app = $('#app');
+const esc = t => t.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+let STORE = {};
+try { STORE = JSON.parse(localStorage.getItem('passivelab-v1') || '{}'); } catch (e) { STORE = {}; }
+if (!STORE || typeof STORE !== 'object') STORE = {};
+const save = () => { try { localStorage.setItem('passivelab-v1', JSON.stringify(STORE)); } catch (e) {} };
+const mark = (lab, i) => { STORE[lab] = STORE[lab] || {}; STORE[lab][i] = 1; save(); };
+const doneCount = lab => Object.keys(STORE[lab] || {}).length;
+function h(html) { app.innerHTML = html; window.scrollTo(0, 0); }
+function msg(el, kind, text) { el.className = 'msg ' + kind; el.innerHTML = text; el.hidden = false; }
+function shake(el) { el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); }
+function navBar(i, n, prev, next) {
+  return `<div class="nav"><button class="btn ghost" id="prev" ${i === 0 ? 'disabled' : ''}>← Back</button><span class="count">${i + 1} / ${n}</span><button class="btn" id="next" ${i === n - 1 ? 'disabled' : ''}>Next →</button></div>`;
+}
+function wireNav(i, n, go) { const p = $('#prev'), x = $('#next'); if (p) p.onclick = () => go(i - 1); if (x) x.onclick = () => go(i + 1); }
+
+// ---------- home ----------
+const LABS = [
+  { id: 'flip', t: '1 · Flip machine', s: 'Role cards: who does it, who gets it? Then flip to the passive.', n: FLIP.length },
+  { id: 'brick', t: '2 · Brick fit', s: 'Fill in the blank: role cards first, then the brick.', n: BLANK.length },
+  { id: 'sock', t: '3 · Socket and count', s: 'Two quick checks: can the verb hold a receiver? One or more?', n: SOCK.yes.length + SOCK.no.length + COUNT.length },
+  { id: 'err', t: '4 · Error scanner', s: 'Scan each underlined part with the tools.', n: ERR.length },
+  { id: 'same', t: '5 · Same-story check', s: 'Which rewrite keeps all four badges?', n: SAME.length },
+  { id: 'mix', t: '6 · Mixed practice', s: '10 random questions with tool hints.', n: 0 },
+];
+function home() {
+  $('#homeBtn').hidden = true;
+  h(`<div class="card"><h2>Three tools</h2><p class="lead">Every passive question can be checked with three tools and two quick checks:</p>
+  <p><b style="color:var(--g)">1 Role cards</b> who does it, who gets it? · <b style="color:var(--pu)">2 Bricks</b> the word before the gap decides · <b style="color:var(--te)">3 Same-story card</b> four badges must match · <b>+ Socket</b> and <b>+ Count badge</b></p></div>
+  <div class="grid">${LABS.map(l => `<button class="tile" data-l="${l.id}"><span class="done">${l.n ? doneCount(l.id) + ' / ' + l.n : (STORE.mixBest ? 'best ' + STORE.mixBest + ' / 10' : '')}</span><b>${l.t}</b><span>${l.s}</span></button>`).join('')}</div>`);
+  document.querySelectorAll('.tile').forEach(b => b.onclick = () => open(b.dataset.l));
+}
+function open(id) { $('#homeBtn').hidden = false; ({ flip: () => flip(0), brick: () => brick(0), sock: () => sock(), err: () => err(0), same: () => same(0), mix: () => mix() })[id](); }
+$('#homeBtn').onclick = home;
+
+// ---------- 1 flip ----------
+function flip(i) {
+  const f = FLIP[i];
+  h(`<div class="card"><h2>Flip machine</h2><p class="lead">Tap the card that <b style="color:var(--g)">does it</b>, then the card that <b style="color:var(--b)">gets it</b>. Then flip to the passive.</p>
+  <div class="legend">Green: does it · Blue: gets it · The arrow always runs from the doer to the receiver.</div>
+  <div class="row" id="row"></div>
+  <div class="q" id="ask"></div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" id="flipBtn" disabled>Flip to passive</button><button class="btn ghost" id="again">Start again</button></div>
+  <div id="m" hidden></div>${navBar(i, FLIP.length)}</div>`);
+  const row = $('#row');
+  const cards = [{ k: 'doer', t: f.doer }, { k: 'verb', t: f.verb }, { k: 'rec', t: f.rec }];
+  let stage = 0;
+  row.innerHTML = cards.map((c, j) => `<button class="rc plain" data-k="${c.k}" id="c_${c.k}">${esc(c.t)}</button>${j < 2 ? '<span class="arr" data-a>→</span>' : ''}`).join('') + (f.rest ? `<span class="rc rest" id="c_rest">${esc(f.rest)}</span>` : '');
+  const ask = $('#ask'), m = $('#m');
+  ask.textContent = 'Who does it? Tap the doer.';
+  row.querySelectorAll('button.rc').forEach(b => b.onclick = () => {
+    const k = b.dataset.k;
+    if (stage === 0) { if (k === 'doer') { b.classList.add('doer', 'pop'); stage = 1; ask.textContent = 'Who gets it? Tap the receiver.'; m.hidden = true; } else { shake(b); msg(m, 'no', k === 'verb' ? 'That is the action. Who does the action?' : 'That is the one who gets the action. Who does it?'); } }
+    else if (stage === 1) { if (k === 'rec') { b.classList.add('rec', 'pop'); stage = 2; ask.textContent = 'Now flip: the receiver moves to the front.'; $('#flipBtn').disabled = false; m.hidden = true; } else if (k !== 'doer') { shake(b); msg(m, 'no', 'That is the action. Who or what gets it?'); } }
+  });
+  $('#flipBtn').onclick = () => {
+    if (stage !== 2) return; stage = 3; $('#flipBtn').disabled = true;
+    const els = [...row.children]; const first = new Map(els.map(e => [e, e.getBoundingClientRect()]));
+    const rec = $('#c_rec'), doer = $('#c_doer'), verb = $('#c_verb'), rest = $('#c_rest');
+    row.querySelectorAll('[data-a]').forEach(a => a.remove());
+    verb.innerHTML = `<span class="hl">${esc(f.pas[0])}</span> ${esc(f.pas[1])}`;
+    const by = document.createElement('span'); by.className = 'rc by pop'; by.textContent = 'by';
+    const a1 = document.createElement('span'); a1.className = 'arr'; a1.textContent = '←';
+    const a2 = document.createElement('span'); a2.className = 'arr'; a2.textContent = '←';
+    row.innerHTML = ''; row.append(rec, a1, verb, a2, by, doer); if (rest) row.append(rest);
+    if (f.by === 'optional') { by.classList.add('opt'); doer.classList.add('opt'); }
+    [rec, doer, verb, rest].filter(Boolean).forEach(e => {
+      const a = first.get(e), b = e.getBoundingClientRect(); if (!a) return;
+      e.animate([{ transform: `translate(${a.left - b.left}px,${a.top - b.top}px)` }, { transform: 'none' }], { duration: 900, easing: 'cubic-bezier(.2,.8,.2,1)' });
+    });
+    ask.textContent = 'Passive:';
+    msg(m, 'ok', esc(f.note) + (f.by === 'optional' ? ' <br>The dashed cards can be left out.' : ''));
+    mark('flip', i);
+  };
+  $('#again').onclick = () => flip(i);
+  wireNav(i, FLIP.length, flip);
+}
+
+// ---------- 2 brick ----------
+function gapHtml(it, fill) { return esc(it.s).replace('___', `<span class="gap" id="gap">${fill || '&nbsp;'}</span>`) + ` <span style="color:var(--mut);font-family:'Nunito Sans';font-size:17px">(${it.v})</span>`; }
+function brick(i) {
+  const it = BLANK[i];
+  h(`<div class="card"><h2>Brick fit</h2><p class="lead">Fill in the blank with the correct form of the verb in brackets.</p>
+  <div class="sent" id="sent">${gapHtml(it)}</div><div id="steps"></div><div id="m" hidden></div>${navBar(i, BLANK.length)}</div>
+  <div class="card"><div class="q">The bricks</div><div class="bricks">
+  <div class="bk"><div class="h">will · can · must · to</div><div class="t" style="color:var(--pu)">▲</div><div class="b o k-be">be</div></div>
+  <div class="bk"><div class="h">have · has · had</div><div class="t" style="color:var(--am)">●</div><div class="b o k-been">been</div></div>
+  <div class="bk"><div class="h">after · about · without · enjoy</div><div class="t" style="color:var(--te)">■</div><div class="b o k-being">being</div></div>
+  <div class="bk"><div class="h">no helper</div><div class="t" style="color:var(--sl)">◆</div><div class="b o">am · is · are · was · were</div></div></div>
+  <p class="legend">Happening at that moment? is / was + being + V3. After any be-brick: V3, never V2.</p></div>`);
+  const steps = $('#steps'), m = $('#m'), gap = () => $('#gap');
+  const chips = [];
+  const setGap = () => { gap().innerHTML = chips.map((c, j) => `<span class="chip${j === chips.length - 1 ? ' pop' : ''}" style="background:${c.bg};color:${c.fg}">${esc(c.t)}</span>`).join(' ') || '&nbsp;'; };
+  function ask(tool, q, opts, key, onRight, cls) {
+    const d = document.createElement('div');
+    d.innerHTML = `<div class="q"><span class="tool">${tool}</span>${q}</div><div class="opts">${opts.map(o => `<button class="o ${cls ? cls(o) : ''}">${esc(o)}</button>`).join('')}</div>`;
+    steps.append(d);
+    d.querySelectorAll('.o').forEach(b => b.onclick = () => {
+      if (b.textContent === key) { d.querySelectorAll('.o').forEach(x => x.disabled = true); b.classList.add('right'); m.hidden = true; onRight(); }
+      else { b.classList.add('wrong'); b.disabled = true; shake(b); msg(m, 'no', hint(tool)); }
+    });
+  }
+  const hint = tool => ({
+    'Role cards': `Ask: does <b>${esc(it.who.toLowerCase())}</b> do the action, or get it? Clue: an object straight after the gap usually means active.`,
+    'Main verb': 'Count the verbs. Is there already a main verb after the gap?',
+    'Brick': it.bt ? 'Look at the clue words and the time. Which brick fits?' : `Look at the word just before the gap: <b>${esc(it.bq || '')}</b>. Which brick has the matching shape?`,
+    'V3': 'After a be-brick, the verb is always V3 (past participle).',
+    'Answer': 'Check the role cards again: who does it, and does it have a socket for a receiver?',
+    'Sticker': 'The main verb is already there. Does the noun get it (V3) or do it (-ing)?',
+  })[tool];
+  const roleQ = () => ask('Role cards', `Does <b>${esc(it.who.toLowerCase())}</b> do the action or get it?`, ['does it', 'gets it'], it.role === 'does' ? 'does it' : 'gets it', afterRole,
+    o => o === 'does it' ? 'k-do' : 'k-get');
+  function afterRole() {
+    if (it.sticker) ask('Sticker', 'So the sticker on the noun is…', it.ao, it.ak, finish);
+    else if (it.role === 'does') ask('Answer', 'Which form fits?', it.ao, it.ak, finish);
+    else ask('Brick', it.bt ? esc(it.bt) : `Which brick fits after <b>${esc(it.bq)}</b>?`, it.bo, it.bk, () => { const bc = { be: ['#efeafe', '#3c2a8a'], been: ['#fff1dc', '#7a4300'], being: ['#e1f5ee', '#085041'], 'have been': ['#fff1dc', '#7a4300'] }[it.bk] || ['#e6ecf2', '#2b3a45']; chips.push({ t: it.bk, bg: bc[0], fg: bc[1] }); setGap(); ask('V3', 'And the verb brick?', it.vo, it.vk, () => finish()); }, o => ({ be: 'k-be', been: 'k-been', being: 'k-being' }[o] || ''));
+  }
+  function finish() {
+    const ans = it.ak || it.vk;
+    chips.push({ t: ans, bg: it.role === 'does' ? '#e7f8e5' : '#ddf3fc', fg: it.role === 'does' ? '#0a3c14' : '#0b4a66' }); setGap();
+    msg(m, 'ok', '✓ ' + esc(it.why)); mark('brick', i);
+  }
+  if (it.sticker) ask('Main verb', `Is the main verb already there? (look for <b>${esc(it.sticker)}</b>)`, ['yes, it is there', 'no, the gap is the main verb'], 'yes, it is there', roleQ);
+  else roleQ();
+  wireNav(i, BLANK.length, brick);
+}
+
+// ---------- 3 socket + count ----------
+function sock() {
+  const list = shuffle([...SOCK.yes.map(v => [v, 1]), ...SOCK.no.map(v => [v, 0])]);
+  let k = 0, right = 0;
+  h(`<div class="card"><h2>Socket check</h2><p class="lead">Can the verb hold a receiver (an object)? If it has no socket, it can never be passive.</p>
+  <div class="sock"><div class="verbchip" id="vc"></div><div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+  <button class="btn" id="yes">Has a socket</button><button class="btn ghost" id="no">No socket</button></div></div>
+  <div class="bar"><i id="bar" style="width:0"></i></div><div id="m" hidden></div><div class="nav"><span class="count" id="sc"></span><button class="btn" id="nv" hidden>Next verb →</button></div></div><div class="card" id="cnt"></div>`);
+  const m = $('#m');
+  const show = () => { $('#sc').textContent = `${Math.min(k + 1, list.length)} / ${list.length}`; if (k >= list.length) { $('#vc').textContent = `${right} / ${list.length}`; $('#yes').disabled = $('#no').disabled = true; $('#nv').hidden = true; const d = document.createElement('div'); d.className = 'msg info'; d.textContent = 'In their normal meaning, happen, arrive, belong, fall, seem, remain, exist and die have no object, so they have no passive.'; $('#m').after(d); return; } $('#yes').disabled = $('#no').disabled = false; $('#nv').hidden = true; m.hidden = true; $('#vc').textContent = list[k][0]; $('#vc').classList.remove('pop'); void $('#vc').offsetWidth; $('#vc').classList.add('pop'); };
+  const ans = y => {
+    const [v, has] = list[k];
+    $('#yes').disabled = $('#no').disabled = true;
+    if ((y ? 1 : 0) === has) { right++; mark('sock', 'v' + v); msg(m, 'ok', has ? `✓ ${v} + a receiver: it can be passive (was ${v.endsWith('e') ? v + 'd' : v + 'ed'}).` : `✓ ${v} has no socket: no passive.`); }
+    else { msg(m, 'no', has ? `${v} can take an object, so it has a socket: it can be passive.` : `${v} has no object in its normal meaning: no socket, no passive.`); shake($('#vc')); }
+    k++; $('#bar').style.width = (k / list.length * 100) + '%'; $('#nv').hidden = false; $('#nv').textContent = k >= list.length ? 'See my score →' : 'Next verb →';
+  };
+  $('#nv').onclick = show;
+  $('#yes').onclick = () => ans(1); $('#no').onclick = () => ans(0); show();
+  // count
+  const cnt = $('#cnt'); let ci = 0;
+  function cshow() {
+    if (ci >= COUNT.length) { cnt.innerHTML = '<h2>Count badge</h2><div class="msg ok">✓ Done. Always find the main noun before you choose is/are or was/were.</div>'; return; }
+    const c = COUNT[ci];
+    cnt.innerHTML = `<h2>Count badge</h2><p class="lead">Tap the main noun, then choose the verb.</p><div class="sent">${esc(c.s).replace('___', '<span class="gap" id="cg">&nbsp;</span>')}</div>
+    <div class="q"><span class="tool">Count</span>Which noun is the main noun?</div><div class="opts" id="cn">${c.nouns.map(n => `<button class="o">${n}</button>`).join('')}</div>
+    <div class="q" id="cq2" hidden><span class="tool">Count</span>So the verb is…</div><div class="opts" id="cv" hidden>${c.opts.map(o => `<button class="o">${o}</button>`).join('')}</div><div id="cm" hidden></div>`;
+    const cm = $('#cm');
+    cnt.querySelectorAll('#cn .o').forEach(b => b.onclick = () => {
+      if (b.textContent === c.head) { b.classList.add('right'); cnt.querySelectorAll('#cn .o').forEach(x => x.disabled = true); $('#cq2').hidden = $('#cv').hidden = false; cm.hidden = true; }
+      else { b.classList.add('wrong'); b.disabled = true; msg(cm, 'no', 'That noun is inside a phrase after of / to / from. Find the first, main noun.'); }
+    });
+    cnt.querySelectorAll('#cv .o').forEach(b => b.onclick = () => {
+      if (b.textContent === c.key) { b.classList.add('right'); $('#cg').textContent = c.key; mark('sock', 'c' + ci); msg(cm, 'ok', `✓ The main noun is <b>${c.head}</b>: ${['list', 'each'].includes(c.head) ? 'one' : 'more than one'} → ${c.key}.`); const nx = document.createElement('button'); nx.className = 'btn'; nx.style.marginTop = '10px'; nx.textContent = 'Next sentence →'; nx.onclick = () => { ci++; cshow(); }; cnt.append(nx); cnt.querySelectorAll('#cv .o').forEach(x => x.disabled = true); }
+      else { b.classList.add('wrong'); b.disabled = true; msg(cm, 'no', `Count the main noun (${c.head}): one thing or more?`); }
+    });
+  }
+  cshow();
+}
+
+// ---------- 4 error scanner ----------
+function err(i) {
+  const e = ERR[i]; let pi = 0; const html = e.parts.map(p => { if (p[0] === '[') { pi++; return `<span class="u" data-p="${pi}"><span class="pn">(${pi})</span> ${esc(p.slice(1, -1))}</span>`; } return esc(p); }).join('');
+  h(`<div class="card"><h2>Error scanner</h2><p class="lead">One underlined part is wrong. Tap a part, then choose what the scanner finds.</p>
+  <div class="sent">${html}</div><div id="scan" hidden><div class="q" id="sq"></div><div class="scan">${VERD.map(v => `<button class="o" data-v="${v}">${v === 'Fine' ? '✓ Fine' : '✗ ' + v}</button>`).join('')}</div></div>
+  <div id="fix" hidden><div class="q"><span class="tool">Fix</span>Choose the correction</div><div class="opts">${shuffle(e.fix).map(f => `<button class="o">${esc(f)}</button>`).join('')}</div></div>
+  <div id="m" hidden></div>${navBar(i, ERR.length)}</div>
+  <div class="card"><p class="legend">Socket: can the verb hold a receiver? · Roles: does it or gets it? · Brick: the word before decides; V3 never V2 · Count: one or more? · When: same time or earlier?</p></div>`);
+  let cur = 0; const m = $('#m');
+  document.querySelectorAll('.u').forEach(u => u.onclick = () => {
+    if (u.classList.contains('okd') || u.classList.contains('err') || u.classList.contains('nv')) return;
+    document.querySelectorAll('.u').forEach(x => x.classList.remove('sel')); u.classList.add('sel'); cur = +u.dataset.p;
+    $('#scan').hidden = false; $('#sq').innerHTML = `<span class="tool">Scan</span>Part (${cur}): what do you find?`;
+    document.querySelectorAll('#scan .o').forEach(b => { b.disabled = false; b.classList.remove('wrong', 'right'); }); m.hidden = true;
+  });
+  document.querySelectorAll('#scan .o').forEach(b => b.onclick = () => {
+    if (!cur) return; const wv = e.v[cur - 1], want = Array.isArray(wv) ? wv[0] : wv, u = document.querySelector(`.u[data-p="${cur}"]`);
+    const okv = Array.isArray(wv) ? wv : (wv === 'Not a verb' ? ['Fine'] : [wv]);
+    if (okv.includes(b.dataset.v)) {
+      u.classList.remove('sel'); u.classList.add(want === 'Not a verb' ? 'nv' : want === 'Fine' ? 'okd' : 'err');
+      msg(m, want === 'Fine' || want === 'Not a verb' ? 'ok' : 'info', '✓ ' + esc(e.why[cur - 1]));
+      $('#scan').hidden = true;
+      if (cur === e.key) $('#fix').hidden = false;
+      cur = 0;
+    } else { b.classList.add('wrong'); b.disabled = true; msg(m, 'no', want === 'Fine' || want === 'Not a verb' ? 'Look again: this part may be fine. If it is not a verb, it is usually fine.' : 'Not that tool. Try: does it have a socket? Who does it? Which brick? One or more? Which time?'); }
+  });
+  document.querySelectorAll('#fix .o').forEach(b => b.onclick = () => {
+    if (b.textContent === e.fk) { b.classList.add('right'); document.querySelectorAll('#fix .o').forEach(x => x.disabled = true); msg(m, 'ok', `✓ Error (${e.key}) → <b>${esc(e.fk)}</b>`); mark('err', i); }
+    else { b.classList.add('wrong'); b.disabled = true; msg(m, 'no', 'Use the same tool again: which form passes the check?'); }
+  });
+  wireNav(i, ERR.length, err);
+}
+
+// ---------- 5 same story ----------
+function same(i) {
+  const s = SAME[i];
+  h(`<div class="card"><h2>Same-story check</h2><p class="lead">For each option, tap the badge that changes, or <b>Same story</b> if all four match.</p>
+  <div class="sent">Active: ${esc(s.act)}</div><div class="badges">${BADGES.map((b, k) => `<div class="bd"><small>${b}</small>${esc(s.vals[k])}</div>`).join('')}</div>
+  <div id="opts">${s.opts.map((o, k) => `<div class="optrow" data-k="${k}"><div class="st"><b>${k + 1}</b>&nbsp; ${esc(o)}</div><div class="mini">${BADGES.map(b => `<button class="o" data-b="${b}">✗ ${b}</button>`).join('')}<button class="o" data-b="broken">✗ not correct English</button><button class="o" data-b="same">✓ Same story</button></div><div class="fb"></div></div>`).join('')}</div>
+  <div id="m" hidden></div>${navBar(i, SAME.length)}</div>`);
+  let solved = 0;
+  document.querySelectorAll('.optrow').forEach(r => {
+    const k = +r.dataset.k, want = s.ch[k];
+    r.querySelectorAll('.o').forEach(b => b.onclick = () => {
+      const pick = b.dataset.b, ok = want.length === 0 ? pick === 'same' : want.includes(pick);
+      if (ok) {
+        r.querySelectorAll('.o').forEach(x => x.disabled = true); b.classList.add('right');
+        r.querySelector('.fb').innerHTML = `<div class="msg ${want.length ? 'info' : 'ok'}">${esc(s.why[k])}</div>`;
+        if (!want.length) r.classList.add('good');
+        if (++solved === 4) { msg($('#m'), 'ok', `✓ The answer is ${s.ch.findIndex(c => !c.length) + 1}: it keeps all four badges.`); mark('same', i); }
+      } else { b.classList.add('wrong'); b.disabled = true; shake(b); }
+    });
+  });
+  wireNav(i, SAME.length, same);
+}
+
+// ---------- 6 mixed ----------
+function mix() {
+  const pool = [];
+  BLANK.forEach(it => pool.push({ kind: 'Fill in the blank', q: gapHtml(it), opts: shuffle(it.ak ? it.ao : [it.bk + ' ' + it.vk, ...it.bo.filter(b => b !== it.bk).slice(0, 2).map(b => b + ' ' + it.vk), it.bk + ' ' + it.vo[1]]), key: it.ak || it.bk + ' ' + it.vk, why: it.why, tool: it.sticker ? 'Sticker' : it.role === 'does' ? 'Role cards' : 'Bricks' }));
+  ERR.forEach(e => { let n = 0; pool.push({ kind: 'Find the error', q: e.parts.map(p => p[0] === '[' ? `<span class="u2"><span class="pn">(${++n})</span> ${esc(p.slice(1, -1))}</span>` : esc(p)).join(''), opts: ['(1)', '(2)', '(3)', '(4)'], key: `(${e.key})`, why: e.why[e.key - 1] + ' → ' + e.fk, tool: [].concat(e.v[e.key - 1])[0] }); });
+  SAME.forEach(s => { const k = s.ch.findIndex(c => !c.length); pool.push({ kind: 'Same meaning', q: 'Active: ' + esc(s.act), opts: s.opts.map((o, j) => `${j + 1}`), list: s.opts, key: `${k + 1}`, why: s.why[k], tool: 'Same-story card' }); });
+  const qs = shuffle(pool).slice(0, 10); let qi = 0, score = 0, tries = 0;
+  function show() {
+    if (qi >= qs.length) { STORE.mixBest = Math.max(STORE.mixBest || 0, score); save(); h(`<div class="card"><h2>Mixed practice</h2><div class="msg ok">Score: ${score} / 10 (first try)</div><div class="nav"><button class="btn" id="again">Try 10 more</button></div></div>`); $('#again').onclick = mix; return; }
+    const q = qs[qi]; tries = 0;
+    h(`<div class="card"><h2>Mixed practice</h2><div class="count">${qi + 1} / 10 · ${q.kind} · score ${score}</div><div class="sent">${q.q}</div>
+    ${q.list ? q.list.map((o, j) => `<p style="margin:4px 0"><b>${j + 1}</b>&nbsp; ${esc(o)}</p>`).join('') : ''}<div class="opts" style="margin-top:10px">${q.opts.map(o => `<button class="o">${esc(o)}</button>`).join('')}</div><div id="m" hidden></div><div class="nav"><span></span><button class="btn" id="nx" hidden>Next →</button></div></div>`);
+    const m = $('#m');
+    document.querySelectorAll('.opts .o').forEach(b => b.onclick = () => {
+      if (b.textContent === q.key) { if (tries === 0) score++; b.classList.add('right'); document.querySelectorAll('.opts .o').forEach(x => x.disabled = true); msg(m, 'ok', '✓ ' + esc(q.why)); $('#nx').hidden = false; }
+      else { tries++; b.classList.add('wrong'); b.disabled = true; msg(m, 'no', `Use the tool: <b>${esc(q.tool)}</b>.`); }
+    });
+    $('#nx').onclick = () => { qi++; show(); };
+  }
+  show();
+}
+home();
+</script>
+</body>
+</html>

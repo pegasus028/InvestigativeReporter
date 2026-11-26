@@ -22,3 +22,11 @@ and "All cases closed" offers "Keep going" into a mode not played yet (the score
 
 Checks: `node tools/check-adv2.js` (bank rules, longest-key share) · `node tools/e2e.js [shots]` (all modes, mocked backend) ·
 `node tools/e2e-board.js [shots]` (teacher board + 3 students in 3 modes against an in-memory copy of Code.gs).
+
+## Passive Lab (`lab/`)
+
+Self-study page for the three passive question types (fill in the blank, error ID, same meaning), added 27 Nov 2026: https://pegasus028.github.io/InvestigativeReporter/lab/
+
+- One file, no backend; progress is kept in the browser (`localStorage` key `passivelab-v1`).
+- Six labs: Flip machine (role cards), Brick fit, Socket and count, Error scanner, Same-story check, Mixed practice.
+- Uses the same visual language as the deck "E4-U5 Three tools for passive questions": green = does it, blue = gets it; bricks be / been / being / am·is·are·was·were.
